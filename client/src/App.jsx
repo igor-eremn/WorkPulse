@@ -1,12 +1,19 @@
-import './App.css'
+import { BrowserRouter as Router, Routes, Route, Link, useNavigate } from 'react-router-dom';
+import './App.css';
+//import Home from './pages/Home';
+//import AdminDashboard from './pages/AdminDashboard';
+//import RegularDashboard from './pages/RegularDashboard';
 
 function App() {
-
   return (
-    <>
-      <div>WorkPulse</div>
-    </>
-  )
+    <Router>
+      <div className="app-container">
+        <Routes>
+          
+        </Routes>
+      </div>
+    </Router>
+  );
 }
 
-export default App
+export default App;
