@@ -2,7 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Link, useNavigate } from 'react
 import './App.css';
 import Home from './pages/Home';
 //import AdminDashboard from './pages/AdminDashboard';
-//import RegularDashboard from './pages/RegularDashboard';
+import UserView from './pages/UserView';
 
 function App() {
   return (
@@ -10,6 +10,7 @@ function App() {
       <div className="app-container">
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/user-view" element={<UserView />} />
         </Routes>
       </div>
     </Router>

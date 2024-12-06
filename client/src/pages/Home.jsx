@@ -11,7 +11,7 @@ function Home() {
   const handleLogin = (e) => {
     e.preventDefault();
     if (username && password) {
-      navigate('/dashboard');
+      navigate('/user-view');
     } else {
       alert('Please enter username and password!');
     }
