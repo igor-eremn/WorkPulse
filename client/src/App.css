@@ -8,7 +8,7 @@ body {
 }
 
 .app-container {
-  width: 490px;
+  width: 552px;
   margin: 0 auto;
   background-color: #242424;
   border-radius: 8px;
@@ -31,7 +31,7 @@ body {
   top: 0;
   left: 50%;
   transform: translateX(-50%);
-  width: 35%;
+  width: 100%;
   box-sizing: border-box;
   border-bottom: 1px solid white;
 }
@@ -54,14 +54,14 @@ body {
 .header-label {
   font-size: 16px;
   font-weight: 500;
-  letter-spacing: 1.1em;
+  letter-spacing: 0.9em; /* Adjusted for spacing balance */
   color: rgb(150, 150, 150);
   text-transform: uppercase;
-  width: 100%;
+  width: 100%; /* Matches the container width */
   box-sizing: border-box;
-  margin-top: -2px;
-  padding: 4px 0;
-  text-align: center;
+  padding: 4px 0; /* Padding for spacing */
+  text-align: center; /* Ensures proper centering */
+  margin: 0 auto; /* Centers within the parent container */
 }
 /* - - - - - - - LOGIN FORM - - - - - - - */
 .login-form {
