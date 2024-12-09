@@ -11,7 +11,6 @@ body {
   width: 552px;
   margin: 0 auto;
   background-color: #242424;
-  border-radius: 8px;
   border-inline: 1px solid white;
 }
 
@@ -19,7 +18,6 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
   height: 100vh;
 }
 
@@ -29,6 +27,7 @@ body {
   text-align: center;
   position: absolute;
   top: 0;
+  height: 120px;
   left: 50%;
   transform: translateX(-50%);
   width: 100%;
@@ -173,4 +172,13 @@ body {
   color: rgb(175, 175, 175);
   font-family: monospace;
   font-size: 14px;
+}
+
+/* - - - - - - - - ADMIN PAGE - - - - - - - - */
+.admin-page-style {
+  margin-top: 140px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: start;
 }
