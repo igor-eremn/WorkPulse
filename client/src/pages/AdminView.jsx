@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import Header from '../components/Header';
-import AdminDashboard from '../components/AdminDashboard';
-import AdminList from '../components/List';
-import AdminStatistics from '../components/Statistics';
-import AdminDates from '../components/Dates';
+import AdminDashboard from '../components/admin/AdminDashboard';
+import AdminList from '../components/admin/AdminList';
+import AdminStatistics from '../components/admin/AdminStatistics';
+import AdminDates from '../components/admin/AdminDates';
 
 function AdminView() {
   const [activeComponent, setActiveComponent] = useState('List');
