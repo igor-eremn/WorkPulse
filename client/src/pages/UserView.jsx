@@ -3,7 +3,7 @@ import Header from '../components/Header';
 function UserView() {
   return (
     <div className="centered-container">
-      <Header title="WORKPULSE" />
+      <Header title="WORKPULSE" pageName="USER VIEW" />
       <div className="user-dashboard">
         <h2 className="dashboard-title">Employee Dashboard</h2>
         <div className="button-container">

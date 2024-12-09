@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
-function Header({ title }) {
+function Header({ title, pageName }) {
   const navigate = useNavigate();
 
   const goHome = () => {
@@ -9,8 +9,11 @@ function Header({ title }) {
   };
 
   return (
-    <header className="header">
-      <h1 onClick={goHome}>{title}</h1>
+    <header className="header-container">
+      <h1 className="header-title" onClick={goHome}>
+        {title}
+      </h1>
+      {pageName && <div className="header-label">{pageName}</div>}
     </header>
   );
 }

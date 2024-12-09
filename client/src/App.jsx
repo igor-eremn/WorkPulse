@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Link, useNavigate } from 'react-router-dom';
 import './App.css';
 import Home from './pages/Home';
-//import AdminDashboard from './pages/AdminDashboard';
+import AdminView from './pages/AdminView';
 import UserView from './pages/UserView';
 
 function App() {
@@ -10,6 +10,7 @@ function App() {
       <div className="app-container">
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/admin-view" element={<AdminView />} />
           <Route path="/user-view" element={<UserView />} />
         </Routes>
       </div>

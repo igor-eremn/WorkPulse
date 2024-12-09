@@ -10,16 +10,18 @@ function Home() {
 
   const handleLogin = (e) => {
     e.preventDefault();
-    if (username && password) {
+    if (username == 'admin') {
+      navigate('/admin-view');
+    } else if (username == 'user') {
       navigate('/user-view');
-    } else {
+    }else {
       alert('Please enter username and password!');
     }
   };
 
   return (
     <div className="centered-container">
-        <Header title="WORKPULSE" />
+        <Header title="WORKPULSE" pageName=" HOME PAGE"/>
         <form onSubmit={handleLogin} className="login-form">
             <div>
                 <input
