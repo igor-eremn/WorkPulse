@@ -23,7 +23,7 @@ function AdminView() {
 
   return (
     <div className="centered-container">
-      <div className="admin-page-style">
+      <div className="page-style">
         <Header title="WORKPULSE" pageName="ADMIN PAGE" />
         <AdminDashboard setActiveComponent={setActiveComponent} />
         <div className="admin-content">{renderComponent()}</div>

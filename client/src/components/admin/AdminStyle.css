@@ -1,4 +1,4 @@
-.dashboard {
+.admin-dashboard {
     display: flex;
     justify-content: space-around;
     margin: 20px 0;
@@ -8,8 +8,9 @@
     padding-bottom: 15px;
   }
   
-  .dashboard-button {
-    padding: 10px 0px;
+  .admin-dashboard-button {
+    width: 100px;
+    height: 40px;
     font-size: 20px;
     font-weight: bold;
     background-color: rgb(50, 50, 50);
@@ -20,8 +21,9 @@
     transition: background-color 0.3s;
   }
   
-  .dashboard-button:hover {
+  .admin-dashboard-button:hover {
     background-color: rgb(80, 80, 80);
+    opacity: 0.8;
   }
   
   .admin-content {
@@ -29,7 +31,7 @@
     text-align: center;
   }
   
-  .component-placeholder {
+  .admin-component-placeholder {
     font-size: 18px;
     font-weight: bold;
     color: rgb(150, 150, 150);

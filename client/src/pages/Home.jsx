@@ -21,6 +21,7 @@ function Home() {
 
   return (
     <div className="centered-container">
+      <div className="home-page-style">
         <Header title="WORKPULSE" pageName=" HOME PAGE"/>
         <form onSubmit={handleLogin} className="login-form">
             <div>
@@ -45,7 +46,8 @@ function Home() {
                 LOGIN
             </button>
         </form>
-    </div>
+      </div>
+  </div>
   );
 }
 

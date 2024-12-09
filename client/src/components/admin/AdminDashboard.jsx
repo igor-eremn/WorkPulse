@@ -7,10 +7,10 @@ import { IoCalendarClearSharp } from "react-icons/io5";
 
 function AdminDashboard({ setActiveComponent }) {
   return (
-    <div className="dashboard">
-      <button className="dashboard-button" onClick={() => setActiveComponent('List')}><IoList /></button>
-      <button className="dashboard-button" onClick={() => setActiveComponent('Statistics')}><IoStatsChart /></button>
-      <button className="dashboard-button" onClick={() => setActiveComponent('Dates')}><IoCalendarClearSharp /></button>
+    <div className="admin-dashboard">
+      <button className="admin-dashboard-button" onClick={() => setActiveComponent('List')}><IoList /></button>
+      <button className="admin-dashboard-button" onClick={() => setActiveComponent('Statistics')}><IoStatsChart /></button>
+      <button className="admin-dashboard-button" onClick={() => setActiveComponent('Dates')}><IoCalendarClearSharp /></button>
     </div>
   );
 }
