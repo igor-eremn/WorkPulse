@@ -6,7 +6,7 @@ const PORT = 3000;
 
 app.use(bodyParser.json());
 
-const routes = require('./routes');
+const routes = require('./routes/routes-emp');
 app.use('/', routes);
 
 app.listen(PORT, () => {
