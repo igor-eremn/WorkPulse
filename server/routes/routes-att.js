@@ -35,22 +35,31 @@ router.post('/attendance/clock-in', (req, res) => {
     });
 });
 
-router.put('/attendance/break-in/:id', (req, res) => {
-    const { id } = req.params;
+router.put('/attendance/break-in', (req, res) => {
+    const { employee_id } = req.body;
 
-    const checkQuery = `SELECT break_in_time FROM attendance WHERE id = ?`;
+    const checkQuery = `
+        SELECT id, break_in_time 
+        FROM attendance 
+        WHERE employee_id = ? 
+        AND strftime('%Y-%m-%d', clock_in_time) = strftime('%Y-%m-%d', 'now', 'localtime')
+    `;
 
-    db.get(checkQuery, [id], (err, row) => {
+    db.get(checkQuery, [employee_id], (err, row) => {
         if (err) {
             return res.status(500).json({ error: err.message });
         }
 
-        if (row.break_in_time) {
-            return res.status(400).json({ error: 'Break has already started or ended' });
+        if (!row) {
+            return res.status(400).json({ error: 'No clock-in record found for today' });
         }
 
-        const updateQuery = `UPDATE attendance SET break_in_time = datetime('now') WHERE id = ?`;
-        db.run(updateQuery, [id], function (err) {
+        if (row.break_in_time) {
+            return res.status(400).json({ error: 'Break has already started or ended today' });
+        }
+
+        const updateQuery = `UPDATE attendance SET break_in_time = datetime('now', 'localtime') WHERE id = ?`;
+        db.run(updateQuery, [row.id], function (err) {
             if (err) {
                 return res.status(500).json({ error: err.message });
             }
@@ -60,26 +69,31 @@ router.put('/attendance/break-in/:id', (req, res) => {
     });
 });
 
-router.put('/attendance/break-out/:id', (req, res) => {
-    const { id } = req.params;
+router.put('/attendance/break-out', (req, res) => {
+    const { employee_id } = req.body;
 
-    const checkQuery = `SELECT break_in_time, break_out_time FROM attendance WHERE id = ?`;
+    const checkQuery = `
+        SELECT id, break_in_time, break_out_time 
+        FROM attendance 
+        WHERE employee_id = ? 
+        AND strftime('%Y-%m-%d', clock_in_time) = strftime('%Y-%m-%d', 'now', 'localtime')
+    `;
 
-    db.get(checkQuery, [id], (err, row) => {
+    db.get(checkQuery, [employee_id], (err, row) => {
         if (err) {
             return res.status(500).json({ error: err.message });
         }
 
-        if (!row.break_in_time) {
-            return res.status(400).json({ error: 'Cannot break out without starting a break' });
+        if (!row || !row.break_in_time) {
+            return res.status(400).json({ error: 'Cannot break out without starting a break today' });
         }
 
         if (row.break_out_time) {
-            return res.status(400).json({ error: 'Break has already ended' });
+            return res.status(400).json({ error: 'Break has already ended today' });
         }
-        
-        const updateQuery = `UPDATE attendance SET break_out_time = datetime('now') WHERE id = ?`;
-        db.run(updateQuery, [id], function (err) {
+
+        const updateQuery = `UPDATE attendance SET break_out_time = datetime('now', 'localtime') WHERE id = ?`;
+        db.run(updateQuery, [row.id], function (err) {
             if (err) {
                 return res.status(500).json({ error: err.message });
             }
@@ -89,15 +103,37 @@ router.put('/attendance/break-out/:id', (req, res) => {
     });
 });
 
-router.put('/attendance/clock-out/:id', (req, res) => {
-    const { id } = req.params;
-    const query = `UPDATE attendance SET clock_out_time = datetime('now') WHERE id = ?`;
-    db.run(query, [id], function (err) {
+router.put('/attendance/clock-out', (req, res) => {
+    const { employee_id } = req.body;
+
+    const checkQuery = `
+        SELECT id, clock_out_time 
+        FROM attendance 
+        WHERE employee_id = ? 
+        AND strftime('%Y-%m-%d', clock_in_time) = strftime('%Y-%m-%d', 'now', 'localtime')
+    `;
+
+    db.get(checkQuery, [employee_id], (err, row) => {
         if (err) {
-            res.status(500).json({ error: err.message });
-        } else {
-            res.json({ message: 'Clock-out time recorded' });
+            return res.status(500).json({ error: err.message });
         }
+
+        if (!row) {
+            return res.status(400).json({ error: 'No clock-in record found for today' });
+        }
+
+        if (row.clock_out_time) {
+            return res.status(400).json({ error: 'Already clocked out today' });
+        }
+
+        const updateQuery = `UPDATE attendance SET clock_out_time = datetime('now', 'localtime') WHERE id = ?`;
+        db.run(updateQuery, [row.id], function (err) {
+            if (err) {
+                return res.status(500).json({ error: err.message });
+            }
+
+            res.json({ message: 'Clock-out time recorded' });
+        });
     });
 });
 
@@ -126,7 +162,6 @@ router.get('/attendance', (req, res) => {
     });
 });
 
-//test route to delete all data from the database
 router.delete('/attendance', (req, res) => {
     const query = `DELETE FROM attendance`;
     db.run(query, [], function (err) {
@@ -137,6 +172,5 @@ router.delete('/attendance', (req, res) => {
         }
     });
 });
-
 
 module.exports = router;
