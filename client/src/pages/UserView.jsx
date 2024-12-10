@@ -1,6 +1,9 @@
 import Header from '../components/Header';
+import { useParams } from 'react-router-dom';
 
 function UserView() {
+  const { id } = useParams();
+
   return (
     <div className="centered-container">
       <div className="page-style">
