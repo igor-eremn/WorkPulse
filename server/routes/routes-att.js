@@ -16,6 +16,30 @@ router.post('/attendance/clock-in', (req, res) => {
     });
 });
 
+router.put('/attendance/break-in/:id', (req, res) => {
+    const { id } = req.params;
+    const query = `UPDATE attendance SET break_in_time = datetime('now') WHERE id = ?`;
+    db.run(query, [id], function (err) {
+        if (err) {
+            res.status(500).json({ error: err.message });
+        } else {
+            res.json({ message: 'Break-in time recorded' });
+        }
+    });
+});
+
+router.put('/attendance/break-out/:id', (req, res) => {
+    const { id } = req.params;
+    const query = `UPDATE attendance SET break_out_time = datetime('now') WHERE id = ?`;
+    db.run(query, [id], function (err) {
+        if (err) {
+            res.status(500).json({ error: err.message });
+        } else {
+            res.json({ message: 'Break-out time recorded' });
+        }
+    });
+});
+
 router.put('/attendance/clock-out/:id', (req, res) => {
     const { id } = req.params;
     const query = `UPDATE attendance SET clock_out_time = datetime('now') WHERE id = ?`;
@@ -31,7 +55,7 @@ router.put('/attendance/clock-out/:id', (req, res) => {
 router.get('/attendance', (req, res) => {
     const query = `
         SELECT 
-            a.id, e.name, a.clock_in_time, a.clock_out_time
+            a.id, e.name, a.clock_in_time, a.break_in_time, a.break_out_time, a.clock_out_time
         FROM 
             attendance a
         JOIN 
@@ -45,5 +69,18 @@ router.get('/attendance', (req, res) => {
         }
     });
 });
+
+//test route to delete all data from the database
+router.delete('/attendance', (req, res) => {
+    const query = `DELETE FROM attendance`;
+    db.run(query, [], function (err) {
+        if (err) {
+            res.status(500).json({ error: err.message });
+        } else {
+            res.json({ message: 'Attendance data deleted' });
+        }
+    });
+});
+
 
 module.exports = router;

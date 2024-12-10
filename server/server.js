@@ -6,8 +6,10 @@ const PORT = 3000;
 
 app.use(bodyParser.json());
 
-const routes = require('./routes/routes-emp');
-app.use('/', routes);
+const people_routes = require('./routes/routes-emp');
+const time_routes = require('./routes/routes-att');
+app.use('/', people_routes);
+app.use('/', time_routes);
 
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
@@ -36,6 +38,8 @@ const initializeDatabase = () => {
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 employee_id INTEGER NOT NULL,
                 clock_in_time DATETIME NOT NULL,
+                break_in_time DATETIME,
+                break_out_time DATETIME,
                 clock_out_time DATETIME,
                 FOREIGN KEY (employee_id) REFERENCES employees(id)
             )
