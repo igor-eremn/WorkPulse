@@ -10,7 +10,7 @@ function AdminDashboard({ setActiveComponent }) {
     <div className="admin-dashboard">
       <button className="admin-dashboard-button" onClick={() => setActiveComponent('List')}><IoList /></button>
       <button className="admin-dashboard-button" onClick={() => setActiveComponent('Statistics')}><IoStatsChart /></button>
-      <button className="admin-dashboard-button" onClick={() => setActiveComponent('Dates')}><IoCalendarClearSharp /></button>
+      <button className="admin-dashboard-button"><IoCalendarClearSharp /></button>
     </div>
   );
 }

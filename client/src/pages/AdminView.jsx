@@ -14,8 +14,6 @@ function AdminView() {
         return <AdminList />;
       case 'Statistics':
         return <AdminStatistics />;
-      case 'Dates':
-        return <AdminDates />;
       default:
         return null;
     }
