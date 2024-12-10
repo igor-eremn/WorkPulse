@@ -1,8 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const sqlite3 = require('sqlite3').verbose();
-
-const db = new sqlite3.Database('./database.db');
+const db = require('../db/database');
 
 router.post('/attendance/clock-in', (req, res) => {
     const { employee_id } = req.body;
