@@ -4,7 +4,7 @@ const db = require('../db/database');
 
 router.post('/attendance/clock-in', (req, res) => {
     const { employee_id } = req.body;
-    const query = `INSERT INTO attendance (employee_id, clock_in_time) VALUES (?, datetime('now'))`;
+    const query = `INSERT INTO attendance (employee_id, clock_in_time) VALUES (?, datetime('now', 'localtime'))`;
     db.run(query, [employee_id], function (err) {
         if (err) {
             res.status(500).json({ error: err.message });
@@ -63,7 +63,14 @@ router.get('/attendance', (req, res) => {
         if (err) {
             res.status(500).json({ error: err.message });
         } else {
-            res.json(rows);
+            const result = rows.map(row => ({
+                ...row,
+                clock_in_time: row.clock_in_time ? new Date(row.clock_in_time + 'Z').toLocaleString() : null,
+                break_in_time: row.break_in_time ? new Date(row.break_in_time + 'Z').toLocaleString() : null,
+                break_out_time: row.break_out_time ? new Date(row.break_out_time + 'Z').toLocaleString() : null,
+                clock_out_time: row.clock_out_time ? new Date(row.clock_out_time + 'Z').toLocaleString() : null
+            }));
+            res.json(result);
         }
     });
 });
