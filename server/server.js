@@ -6,6 +6,9 @@ const PORT = 3000;
 
 app.use(bodyParser.json());
 
+const routes = require('./routes');
+app.use('/', routes);
+
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
 });
