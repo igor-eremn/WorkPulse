@@ -4,13 +4,34 @@ const db = require('../db/database');
 
 router.post('/attendance/clock-in', (req, res) => {
     const { employee_id } = req.body;
-    const query = `INSERT INTO attendance (employee_id, clock_in_time) VALUES (?, datetime('now', 'localtime'))`;
-    db.run(query, [employee_id], function (err) {
+    
+    const checkQuery = `
+        SELECT id 
+        FROM attendance 
+        WHERE employee_id = ? 
+        AND date(clock_in_time) = date('now', 'localtime')
+    `;
+
+    db.get(checkQuery, [employee_id], (err, row) => {
         if (err) {
-            res.status(500).json({ error: err.message });
-        } else {
-            res.status(201).json({ id: this.lastID });
+            return res.status(500).json({ error: err.message });
         }
+
+        if (row) {
+            return res.status(400).json({ error: 'You have already clocked in today' });
+        }
+
+        const insertQuery = `
+            INSERT INTO attendance (employee_id, clock_in_time) 
+            VALUES (?, datetime('now', 'localtime'))
+        `;
+        db.run(insertQuery, [employee_id], function (err) {
+            if (err) {
+                return res.status(500).json({ error: err.message });
+            }
+
+            res.status(201).json({ id: this.lastID });
+        });
     });
 });
 
