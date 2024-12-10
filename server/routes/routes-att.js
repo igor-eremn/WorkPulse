@@ -37,25 +37,55 @@ router.post('/attendance/clock-in', (req, res) => {
 
 router.put('/attendance/break-in/:id', (req, res) => {
     const { id } = req.params;
-    const query = `UPDATE attendance SET break_in_time = datetime('now') WHERE id = ?`;
-    db.run(query, [id], function (err) {
+
+    const checkQuery = `SELECT break_in_time FROM attendance WHERE id = ?`;
+
+    db.get(checkQuery, [id], (err, row) => {
         if (err) {
-            res.status(500).json({ error: err.message });
-        } else {
-            res.json({ message: 'Break-in time recorded' });
+            return res.status(500).json({ error: err.message });
         }
+
+        if (row.break_in_time) {
+            return res.status(400).json({ error: 'Break has already started or ended' });
+        }
+
+        const updateQuery = `UPDATE attendance SET break_in_time = datetime('now') WHERE id = ?`;
+        db.run(updateQuery, [id], function (err) {
+            if (err) {
+                return res.status(500).json({ error: err.message });
+            }
+
+            res.json({ message: 'Break-in time recorded' });
+        });
     });
 });
 
 router.put('/attendance/break-out/:id', (req, res) => {
     const { id } = req.params;
-    const query = `UPDATE attendance SET break_out_time = datetime('now') WHERE id = ?`;
-    db.run(query, [id], function (err) {
+
+    const checkQuery = `SELECT break_in_time, break_out_time FROM attendance WHERE id = ?`;
+
+    db.get(checkQuery, [id], (err, row) => {
         if (err) {
-            res.status(500).json({ error: err.message });
-        } else {
-            res.json({ message: 'Break-out time recorded' });
+            return res.status(500).json({ error: err.message });
         }
+
+        if (!row.break_in_time) {
+            return res.status(400).json({ error: 'Cannot break out without starting a break' });
+        }
+
+        if (row.break_out_time) {
+            return res.status(400).json({ error: 'Break has already ended' });
+        }
+        
+        const updateQuery = `UPDATE attendance SET break_out_time = datetime('now') WHERE id = ?`;
+        db.run(updateQuery, [id], function (err) {
+            if (err) {
+                return res.status(500).json({ error: err.message });
+            }
+
+            res.json({ message: 'Break-out time recorded' });
+        });
     });
 });
 
