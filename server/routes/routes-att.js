@@ -162,6 +162,36 @@ router.get('/attendance', (req, res) => {
     });
 });
 
+router.get('/attendance/today', (req, res) => {
+    const { employee_id } = req.query;
+
+    const query = `
+        SELECT 
+            a.id, e.name, a.clock_in_time, a.break_in_time, a.break_out_time, a.clock_out_time
+        FROM 
+            attendance a
+        JOIN 
+            employees e ON a.employee_id = e.id
+        WHERE 
+            a.employee_id = ?
+        AND strftime('%Y-%m-%d', a.clock_in_time) = strftime('%Y-%m-%d', 'now', 'localtime')
+    `;
+    db.all(query, [employee_id], (err, rows) => {
+        if (err) {
+            res.status(500).json({ error: err.message });
+        } else {
+            const result = rows.map(row => ({
+                ...row,
+                clock_in_time: row.clock_in_time || null,
+                break_in_time: row.break_in_time || null,
+                break_out_time: row.break_out_time || null,
+                clock_out_time: row.clock_out_time || null,
+            }));
+            res.json(result);
+        }
+    });
+});
+
 router.delete('/attendance', (req, res) => {
     const query = `DELETE FROM attendance`;
     db.run(query, [], function (err) {
