@@ -24,7 +24,7 @@ function AdminView() {
       <div className="page-style">
         <Header title="WORKPULSE" pageName="ADMIN PAGE" />
         <AdminDashboard setActiveComponent={setActiveComponent} />
-        <div className="admin-content">{renderComponent()}</div>
+        <div className="admin-user-content">{renderComponent()}</div>
       </div>
     </div>
   );
