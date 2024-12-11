@@ -1,18 +1,27 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Header from '../components/Header';
 import UserDashboard from '../components/user/UserDashboard';
 import UserControlPanel from '../components/user/UserControlPanel';
 import UserHistory from '../components/user/UserHistory';
+import { useParams } from 'react-router-dom';
+import { use } from 'react';
 
 function UserView() {
   const [activeComponent, setActiveComponent] = useState('Dashboard');
 
+  //getting id from the navigate link
+  const { id } = useParams();
+
+  useEffect(() => {
+    console.log('USER VIEW SAYS: uid -> ', id);
+  }, [id]);
+
   const renderComponent = () => {
     switch (activeComponent) {
       case 'Dashboard':
-        return <UserControlPanel />;
+        return <UserControlPanel id={id}/>;
       case 'History':
-        return <UserHistory />;
+        return <UserHistory id={id} />;
       default:
         return null;
     }
