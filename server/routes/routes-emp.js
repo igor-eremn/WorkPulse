@@ -41,6 +41,17 @@ router.post('/employees/login', (req, res) => {
     });
 });
 
+router.get('/employees/user', (req, res) => {
+    const query = `SELECT id, role, name FROM employees WHERE role = 0`;
+    db.all(query, [], (err, rows) => {
+        if (err) {
+            res.status(500).json({ error: err.message });
+        } else {
+            res.json(rows);
+        }
+    });
+});
+
 router.delete('/employees', (req, res) => {
     const query = `DELETE FROM employees`;
     db.run(query, [], function (err) {
