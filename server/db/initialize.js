@@ -4,7 +4,7 @@ const initializeDatabase = () => {
     db.serialize(() => {
         db.run(`
             CREATE TABLE IF NOT EXISTS employees (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                id TEXT PRIMARY KEY, -- Custom ID format (e.g., 1001)
                 name TEXT NOT NULL,
                 role INTEGER NOT NULL,
                 password TEXT NOT NULL
@@ -13,8 +13,8 @@ const initializeDatabase = () => {
 
         db.run(`
             CREATE TABLE IF NOT EXISTS attendance (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                employee_id INTEGER NOT NULL,
+                id TEXT PRIMARY KEY, -- Custom ID format (e.g., 2001)
+                employee_id TEXT NOT NULL, -- Links to employees.id
                 clock_in_time DATETIME NOT NULL,
                 break_in_time DATETIME,
                 break_out_time DATETIME,
