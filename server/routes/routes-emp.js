@@ -65,7 +65,25 @@ router.post('/employees/login', (req, res) => {
 
 // Get all regular users (role = 0)
 router.get('/employees/user', (req, res) => {
-    const query = `SELECT id, role, name FROM employees WHERE role = 0`;
+    const query = `
+        SELECT 
+            e.id,
+            e.name,
+            e.role,
+            IFNULL(SUM(
+                (strftime('%s', a.clock_out_time) - strftime('%s', a.clock_in_time)) 
+                - (strftime('%s', a.break_out_time) - strftime('%s', a.break_in_time))
+            ) / 3600, 0) AS hours_worked
+        FROM 
+            employees e
+        LEFT JOIN 
+            attendance a ON e.id = a.employee_id
+        WHERE 
+            e.role = 0
+        GROUP BY 
+            e.id
+    `;
+
     db.all(query, [], (err, rows) => {
         if (err) {
             res.status(500).json({ error: err.message });

@@ -35,7 +35,7 @@ function List() {
       <h3 className="list-title">Regular Users</h3>
       {users.length > 0 ? (
         users.map(user => (
-          <ListCardTemplate key={user.id} name={user.name} role={user.role} />
+          <ListCardTemplate key={user.id} name={user.name} role={user.role} hoursWorked={user.hours_worked}/>
         ))
       ) : (
         <p>No users found</p>
