@@ -14,8 +14,8 @@ function App() {
       <div className="app-container">
         <Routes>
           <Route path="/" element={<Home setUser={setSessionUser}/>} />
-          <Route path="/admin-view" element={<AdminView user={sessionUser}/>} />
-          <Route path="/user-view" element={<UserView user={sessionUser}/>} /> 
+          <Route path="/admin-view" element={<AdminView userId={sessionUser}/>} />
+          <Route path="/user-view" element={<UserView userId={sessionUser} />} />
           <Route path="/user-view/:id" element={<Navigate to="/" replace />} />
         </Routes>
       </div>

@@ -40,6 +40,7 @@ function Home( { setUser } ) {
             setUser(data.id);
             navigate('/admin-view');
         } else if (data.role === 0) {
+            console.log('setting user id to: ', data.id);
             setUser(data.id);
             navigate(`/user-view`);
         } else {

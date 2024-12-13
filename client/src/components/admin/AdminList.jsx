@@ -7,7 +7,7 @@ function List() {
 
   const fetchUsers = async () => {
     try {
-      const response = await fetch('http://localhost:3000/employees/user', {
+      const response = await fetch('http://localhost:3000/employees/user/total', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',

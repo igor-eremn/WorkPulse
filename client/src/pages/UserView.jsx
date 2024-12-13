@@ -10,36 +10,24 @@ function UserView( { userId } ) {
   const [activeComponent, setActiveComponent] = useState('Dashboard');
   const navigate = useNavigate();
 
-  const id = userId;
-    useEffect(() => {
-      if((id == 0) || (id == null) || (id == undefined)){
-        navigate('/');
-      }else{
-        console.log('ADMIN VIEW SAYS: uid -> ', id);
-      }
-    }, []);
-
   useEffect(() => {
-    console.log('USER VIEW SAYS: uid -> ', id);
-  }, [id]);
-
-  const renderComponent = () => {
-    switch (activeComponent) {
-      case 'Dashboard':
-        return <UserControlPanel id={id}/>;
-      case 'History':
-        return <UserHistory id={id} />;
-      default:
-        return null;
+    if (!userId || userId === 0) {
+      console.log('No user ID, redirecting to home');
+      navigate('/');
+    } else {
+      console.log('USER VIEW SAYS: uid -> ', userId);
     }
-  };
+  }, [userId, navigate]);
 
   return (
     <div className="centered-container">
       <div className="page-style">
         <Header title="WORKPULSE" pageName="USER VIEW" />
         <UserDashboard setActiveComponent={setActiveComponent} />
-        <div className="admin-user-content">{renderComponent()}</div>
+        <div className="admin-user-content">
+          <UserControlPanel id={userId}/>
+          <UserHistory id={userId} />
+        </div>
       </div>
     </div>
   );
