@@ -1,16 +1,19 @@
 // pages/Home.jsx
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 
-function Home() {
+function Home( { setUser } ) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState(0);
-  const [id, setId] = useState(0);
   const [error, setError] = useState('');
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    setUser(0);
+    console.log('YOU ARE ON THE HOME PAGE');
+  }, []);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -32,13 +35,13 @@ function Home() {
         }
 
         const data = await response.json();
-        setRole(data.role);
-        setId(data.id);
 
         if (data.role === 1) {
+            setUser(data.id);
             navigate('/admin-view');
         } else if (data.role === 0) {
-            navigate(`/user-view/${data.id}`);
+            setUser(data.id);
+            navigate(`/user-view`);
         } else {
             alert('Unknown role');
         }

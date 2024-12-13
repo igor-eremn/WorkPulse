@@ -1,12 +1,23 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Header from '../components/Header';
 import AdminDashboard from '../components/admin/AdminDashboard';
 import AdminList from '../components/admin/AdminList';
 import AdminStatistics from '../components/admin/AdminStatistics';
 import AdminDates from '../components/admin/AdminDates';
+import { useNavigate } from 'react-router-dom';
 
-function AdminView() {
+function AdminView( { userId } ) {
   const [activeComponent, setActiveComponent] = useState('List');
+  const navigate = useNavigate();
+
+  const id = userId;
+  useEffect(() => {
+    if((id == 0) || (id == null) || (id == undefined)){
+      navigate('/');
+    }else{
+      console.log('ADMIN VIEW SAYS: uid -> ', id);
+    }
+  }, []);
 
   const renderComponent = () => {
     switch (activeComponent) {

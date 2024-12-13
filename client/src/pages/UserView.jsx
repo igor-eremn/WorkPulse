@@ -4,13 +4,20 @@ import UserDashboard from '../components/user/UserDashboard';
 import UserControlPanel from '../components/user/UserControlPanel';
 import UserHistory from '../components/user/UserHistory';
 import { useParams } from 'react-router-dom';
-import { use } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-function UserView() {
+function UserView( { userId } ) {
   const [activeComponent, setActiveComponent] = useState('Dashboard');
+  const navigate = useNavigate();
 
-  //getting id from the navigate link
-  const { id } = useParams();
+  const id = userId;
+    useEffect(() => {
+      if((id == 0) || (id == null) || (id == undefined)){
+        navigate('/');
+      }else{
+        console.log('ADMIN VIEW SAYS: uid -> ', id);
+      }
+    }, []);
 
   useEffect(() => {
     console.log('USER VIEW SAYS: uid -> ', id);
