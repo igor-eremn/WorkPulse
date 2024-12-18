@@ -81,24 +81,16 @@ router.get('/employees/user/total', (req, res) => {
         SELECT 
             e.id,
             e.name,
-            e.role,
             IFNULL(
-                printf(
-                    '%02d:%02d.%02d',
-                    CAST(SUM(
-                        (strftime('%s', a.clock_out_time) - strftime('%s', a.clock_in_time))
-                        - (strftime('%s', a.break_out_time) - strftime('%s', a.break_in_time))
-                    ) / 3600 AS INTEGER), -- Hours
-                    CAST(SUM(
-                        (strftime('%s', a.clock_out_time) - strftime('%s', a.clock_in_time))
-                        - (strftime('%s', a.break_out_time) - strftime('%s', a.break_in_time))
-                    ) % 3600 / 60 AS INTEGER), -- Minutes
-                    CAST(SUM(
-                        (strftime('%s', a.clock_out_time) - strftime('%s', a.clock_in_time))
-                        - (strftime('%s', a.break_out_time) - strftime('%s', a.break_in_time))
-                    ) % 60 AS INTEGER) -- Seconds
-                ),
-                '00:00.00'
+                ROUND(SUM(
+                    CASE 
+                        WHEN a.clock_out_time IS NOT NULL THEN 
+                            (strftime('%s', a.clock_out_time) - strftime('%s', a.clock_in_time)) / 3600.0
+                        ELSE 
+                            (strftime('%s', 'now', 'localtime') - strftime('%s', a.clock_in_time)) / 3600.0
+                    END
+                ), 2),
+                0
             ) AS hours_worked
         FROM 
             employees e
@@ -107,11 +99,14 @@ router.get('/employees/user/total', (req, res) => {
         WHERE 
             e.role = 0
         GROUP BY 
-            e.id;v
+            e.id
+        ORDER BY 
+            e.name ASC;
     `;
 
     db.all(query, [], (err, rows) => {
         if (err) {
+            console.error('Error fetching total hours worked:', err.message);
             res.status(500).json({ error: err.message });
         } else {
             res.json(rows);
