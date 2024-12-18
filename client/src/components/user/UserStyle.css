@@ -37,7 +37,6 @@
     padding: 20px;
     border: 1px solid white;
     border-radius: 8px;
-    text-align: left;
     width: 400px;
   }
   
@@ -47,6 +46,21 @@
     font-weight: bold;
     color: white;
     text-align: center;
+  }
+  
+  .sessions-row {
+    display: flex;
+    justify-content: space-between;
+  }
+  
+  .sessions-labels,
+  .sessions-times {
+    flex: 1;
+  }
+  
+  .sessions-labels p,
+  .sessions-times p {
+    margin: 5px 0;
   }
   
   .user-component-placeholder {

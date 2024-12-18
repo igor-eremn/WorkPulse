@@ -172,10 +172,20 @@ function UserControlPanel({ id }) {
     <>
       <div className="sessions-card">
         <h3 className="sessions-title">Today's Sessions - {today}</h3>
-        <p>..Started Work: {sessionData?.clock_in_time || 'Not yet'}</p>
-        <p>.Started Break: {sessionData?.break_in_time || 'Not yet'}</p>
-        <p>Finished Break: {sessionData?.break_out_time || 'Not yet'}</p>
-        <p>.Finished Work: {sessionData?.clock_out_time || 'Not yet'}</p>
+        <div className="sessions-row">
+          <div className="sessions-labels">
+            <p>CLOCK_IN__</p>
+            <p>CLOCK_OUT_</p>
+            <p>BREAK_IN__</p>
+            <p>BREAK_OUT_</p>
+          </div>
+          <div className="sessions-times">
+            <p>{sessionData?.clock_in_time || 'Not yet'}</p>
+            <p>{sessionData?.break_in_time || 'Not yet'}</p>
+            <p>{sessionData?.break_out_time || 'Not yet'}</p>
+            <p>{sessionData?.clock_out_time || 'Not yet'}</p>
+          </div>
+        </div>
       </div>
       <SessionControls setUserSelection={setUserSelection} />
     </>
