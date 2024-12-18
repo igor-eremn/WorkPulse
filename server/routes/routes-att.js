@@ -222,4 +222,54 @@ router.delete('/attendance', (req, res) => {
     });
 }); 
 
+// Get all attendance records for a specific employee, excluding today's records, sorted by date
+router.get('/attendance/:employee_id', (req, res) => {
+    const { employee_id } = req.params;
+
+    const query = `
+        SELECT * 
+        FROM attendance 
+        WHERE employee_id = ?
+        AND date(clock_in_time) < date('now', 'localtime')
+        ORDER BY clock_in_time DESC
+    `;
+
+    db.all(query, [employee_id], (err, rows) => {
+        if (err) {
+            console.error('Error fetching attendance:', err.message);
+            return res.status(500).json({ error: err.message });
+        }
+        res.json(rows);
+    });
+});
+
+// Get number of hours worked for a specific employee this month
+router.get('/attendance/hours/:employee_id', (req, res) => {
+    const { employee_id } = req.params;
+
+    const query = `
+        SELECT 
+            ROUND(SUM(
+                CASE 
+                    WHEN clock_out_time IS NOT NULL THEN 
+                        (strftime('%s', clock_out_time) - strftime('%s', clock_in_time)) / 3600.0
+                    ELSE 
+                        (strftime('%s', 'now', 'localtime') - strftime('%s', clock_in_time)) / 3600.0
+                END
+            ), 2) AS hours_worked
+        FROM attendance 
+        WHERE employee_id = ?
+        AND clock_in_time IS NOT NULL
+        AND date(clock_in_time) >= date('now', 'start of month', 'localtime')
+    `;
+
+    db.get(query, [employee_id], (err, row) => {
+        if (err) {
+            console.error('Error fetching hours worked:', err.message);
+            return res.status(500).json({ error: err.message });
+        }
+        res.json({ hours_worked: row.hours_worked || 0 });
+    });
+});
+
 module.exports = router;

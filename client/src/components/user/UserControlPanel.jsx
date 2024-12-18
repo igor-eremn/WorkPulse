@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './UserStyle.css';
 import SessionControls from './SessionControls';
+import TimeCard from './TimeCard';
 
 function UserControlPanel({ id }) {
   const [userSelection, setUserSelection] = useState('idle');
@@ -166,27 +167,24 @@ function UserControlPanel({ id }) {
       console.error('Error:', err.message);
     }
   };
-  const today = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  const today = new Date().toLocaleDateString('en-US', { 
+    month: 'short', 
+    day: 'numeric', 
+    year: 'numeric' 
+  });
 
   return (
     <>
-      <div className="sessions-card">
-        <h3 className="sessions-title">Today's Sessions - {today}</h3>
-        <div className="sessions-row">
-          <div className="sessions-labels">
-            <p>CLOCK_IN__</p>
-            <p>CLOCK_OUT_</p>
-            <p>BREAK_IN__</p>
-            <p>BREAK_OUT_</p>
-          </div>
-          <div className="sessions-times">
-            <p>{sessionData?.clock_in_time || 'Not yet'}</p>
-            <p>{sessionData?.break_in_time || 'Not yet'}</p>
-            <p>{sessionData?.break_out_time || 'Not yet'}</p>
-            <p>{sessionData?.clock_out_time || 'Not yet'}</p>
-          </div>
-        </div>
-      </div>
+      <TimeCard
+        title="Today's Sessions"
+        date={today}
+        data={{
+          clock_in_time: sessionData?.clock_in_time,
+          clock_out_time: sessionData?.clock_out_time,
+          break_in_time: sessionData?.break_in_time,
+          break_out_time: sessionData?.break_out_time
+        }}
+      />
       <SessionControls setUserSelection={setUserSelection} />
     </>
   );
