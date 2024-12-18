@@ -34,7 +34,7 @@ function List() {
     <div className="list-container">
       {users.length > 0 ? (
         users.map(user => (
-          <ListCardTemplate key={user.id} name={user.name} hoursWorked={user.hours_worked}/>
+          <ListCardTemplate key={user.id} name={user.name} id={user.id} hoursWorked={user.hours_worked}/>
         ))
       ) : (
         <p>No users found</p>

@@ -6,6 +6,7 @@ function ListCardTemplate({ name, hoursWorked, id }) {
 
   const download = async () => {
     try {
+      console.log("🚀 ~ ListCardTemplate ~ Downloading report for:", name)
       const response = await fetch(`http://localhost:3000/employees/user/${id}/total/download`, {
         method: 'GET',
       });
