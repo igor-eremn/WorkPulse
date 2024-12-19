@@ -87,3 +87,88 @@
   font-size: 30px; /* Adjust the icon size */
   cursor: pointer;
 }
+
+
+/* Date Picker Card */
+.date-picker-card {
+  background-color: rgb(30, 30, 30);
+  color: white;
+  padding: 20px;
+  margin-bottom: 20px;
+  text-align: left;
+  border: 1px solid white;
+  border-radius: 8px;
+  width: 400px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 15px; /* Add spacing between rows */
+}
+
+/* Date Picker Row */
+.date-picker-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Label */
+.date-picker-label {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+/* Input */
+.date-picker-input {
+  background-color: rgb(50, 50, 50);
+  color: white;
+  border: 1px solid white;
+  border-radius: 4px;
+  padding: 5px;
+  width: 138px; /* Align input with right-side spacing */
+}
+
+/* Actions Row */
+.date-picker-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 15px; /* Add spacing between buttons */
+}
+
+/* Button */
+.date-picker-button {
+  background-color: rgb(50, 50, 50);
+  color: white;
+  border: 1px solid white;
+  border-radius: 4px;
+  padding: 5px;
+  cursor: pointer;
+  width: 150px;
+  transition: background-color 0.3s;
+}
+
+.date-picker-button:hover {
+  background-color: rgb(156, 75, 75);
+}
+
+.date-picker-button.proceed:hover {
+  background-color: rgb(80, 165, 113);
+}
+
+.admin-stat-line {
+  color: white;
+  padding-inline: 20px;
+  padding-top: 15px;
+  padding-bottom: 5px;
+  border-radius: 8px;
+  width: 400px;
+  margin-bottom: 0px;
+}
+
+.admin-stat-title {
+  margin-bottom: 10px;
+  font-size: 20px;
+  font-weight: bold;
+  color: white;
+  text-align: center;
+}
