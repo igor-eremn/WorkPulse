@@ -267,11 +267,12 @@ router.get('/employees/user/:id/total/download', async (req, res) => {
 // Generate and download Excel file with specific employee's attendance records for a specific date period
 router.get('/employees/user/:id/total/period/download', async (req, res) => {
     const { id: employeeId } = req.params;
-    const { startDate, endDate } = req.query; // Get the date range from query params
+    const { startDate, endDate } = req.query; // e.g. 2024-12-15 and 2024-12-18
 
     console.log("🚀 ~ router.get.report.period.id ~ employeeId:", employeeId);
     console.log("🚀 ~ router.get.report.period.dates ~ Start:", startDate, "End:", endDate);
 
+    // Removed 'localtime' from the date filters to avoid unintended timezone shifts.
     const query = `
         SELECT 
             e.name,
@@ -282,11 +283,11 @@ router.get('/employees/user/:id/total/period/download', async (req, res) => {
             ROUND(
                 CASE 
                     WHEN a.clock_out_time IS NOT NULL THEN 
-                        (strftime('%s', a.clock_out_time, 'localtime') - strftime('%s', a.clock_in_time, 'localtime')
-                        - (strftime('%s', a.break_out_time, 'localtime') - strftime('%s', a.break_in_time, 'localtime'))) / 3600.0
+                        (strftime('%s', a.clock_out_time) - strftime('%s', a.clock_in_time)
+                         - (strftime('%s', a.break_out_time) - strftime('%s', a.break_in_time))) / 3600.0
                     ELSE 
-                        (strftime('%s', 'now', 'localtime') - strftime('%s', a.clock_in_time, 'localtime')
-                        - (strftime('%s', a.break_out_time, 'localtime') - strftime('%s', a.break_in_time, 'localtime'))) / 3600.0
+                        (strftime('%s', 'now') - strftime('%s', a.clock_in_time)
+                         - (strftime('%s', a.break_out_time) - strftime('%s', a.break_in_time))) / 3600.0
                 END, 2
             ) AS hours_worked
         FROM 
@@ -295,8 +296,8 @@ router.get('/employees/user/:id/total/period/download', async (req, res) => {
             attendance a ON e.id = a.employee_id
         WHERE 
             e.id = ?
-            AND datetime(a.clock_in_time, 'localtime') >= datetime(?, 'localtime')
-            AND datetime(a.clock_in_time, 'localtime') <= datetime(?, 'localtime', '+1 day', '-1 second')
+            AND date(a.clock_in_time) >= date(?)
+            AND date(a.clock_in_time) <= date(?)
         ORDER BY 
             a.clock_in_time ASC;
     `;
@@ -318,18 +319,22 @@ router.get('/employees/user/:id/total/period/download', async (req, res) => {
             worksheet.addRow([`User: ${rows[0].name}`, `Start Date: ${startDate}`, `End Date: ${endDate}`]);
             worksheet.addRow(['Date', 'Clock In', 'Break In', 'Break Out', 'Clock Out', 'Hours Worked']);
 
+            // This function will parse the timestamp without creating a Date object,
+            // thus avoiding any timezone shifts.
             const formatDateAndDecimalTime = (timestamp) => {
                 if (!timestamp) return { date: '', time: 'N/A' };
-            
-                const dateObj = new Date(timestamp + 'Z'); // Force UTC interpretation for consistency
-                const localDate = dateObj.toLocaleDateString('en-CA'); // Format as YYYY-MM-DD in local time
-                const hours = dateObj.getHours();
-                const minutes = dateObj.getMinutes();
-                const decimalTime = hours + Math.round((minutes / 60) * 10) / 10;
-            
+
+                // timestamp is in "YYYY-MM-DD HH:MM:SS"
+                const [datePart, timePart] = timestamp.split(' ');
+                const [hourStr, minuteStr] = timePart.split(':');
+
+                const hour = parseInt(hourStr, 10);
+                const minute = parseInt(minuteStr, 10);
+                const decimalTime = hour + (minute / 60);
+
                 return {
-                    date: localDate,
-                    time: decimalTime.toFixed(1),
+                    date: datePart,            // Use the exact date from the database
+                    time: decimalTime.toFixed(1), // Decimal time without timezone shifts
                 };
             };
 
@@ -340,12 +345,12 @@ router.get('/employees/user/:id/total/period/download', async (req, res) => {
                 const clockOut = formatDateAndDecimalTime(row.clock_out_time);
 
                 worksheet.addRow([
-                    clockIn.date,           // Date column
-                    clockIn.time,           // Clock In (decimal format)
-                    breakIn.time,           // Break In (decimal format)
-                    breakOut.time,          // Break Out (decimal format)
-                    clockOut.time,          // Clock Out (decimal format)
-                    row.hours_worked || 0,  // Hours Worked
+                    clockIn.date,
+                    clockIn.time,
+                    breakIn.time,
+                    breakOut.time,
+                    clockOut.time,
+                    row.hours_worked || 0,
                 ]);
             });
 
