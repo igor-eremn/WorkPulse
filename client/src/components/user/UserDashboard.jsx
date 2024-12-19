@@ -4,18 +4,18 @@ import './UserStyle.css';
 import { IoReader } from "react-icons/io5";
 import { IoToday } from "react-icons/io5";
 
-function UserDashboard({ setActiveComponent }) {
+function UserDashboard({ scrollToSection }) {
   return (
     <div className="admin-dashboard">
       <button
         className="admin-dashboard-button"
-        onClick={() => setActiveComponent('Dashboard')}
+        onClick={() => scrollToSection('Dashboard')}
       >
         <IoToday />
       </button>
       <button
         className="admin-dashboard-button"
-        onClick={() => setActiveComponent('History')}
+        onClick={() => scrollToSection('History')}
       >
         <IoReader />
       </button>
