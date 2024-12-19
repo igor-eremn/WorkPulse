@@ -3,6 +3,8 @@ import './AdminStyle.css';
 import ListCardTemplate from './ListCardTemplate';
 import DatePicker from './DatePicker'; // New component for selecting dates
 
+//TODO: figure out how to fix useEffect + resetDates + double click
+
 function List() {
   const [users, setUsers] = useState([]);
   const [startDate, setStartDate] = useState('2024-12-01');
@@ -11,12 +13,11 @@ function List() {
 
   // Reset dates to today and unset the date filter
   const resetDates = () => {
-    const today = new Date().toISOString().split('T')[0];
+    const today = new Date().toLocaleDateString('en-CA');
     setStartDate(today);
     setEndDate(today);
-    setDatesAreSet(false); // Reset the filter
+    setDatesAreSet(false);
   };
-
   // Fetch users based on whether dates are set
   const fetchUsers = async () => {
     try {

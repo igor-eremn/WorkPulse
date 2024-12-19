@@ -185,7 +185,8 @@ router.get('/employees/user/total/period', (req, res) => {
             attendance a ON e.id = a.employee_id
         WHERE 
             e.role = 0
-            AND (a.clock_in_time BETWEEN ? AND ?)
+            AND (date(a.clock_in_time) >= date(?)
+                AND date(a.clock_in_time) <= date(?))
         GROUP BY 
             e.id
         ORDER BY 
