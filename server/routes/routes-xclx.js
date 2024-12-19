@@ -282,11 +282,11 @@ router.get('/employees/user/:id/total/period/download', async (req, res) => {
             ROUND(
                 CASE 
                     WHEN a.clock_out_time IS NOT NULL THEN 
-                        (strftime('%s', a.clock_out_time) - strftime('%s', a.clock_in_time)
-                         - (strftime('%s', a.break_out_time) - strftime('%s', a.break_in_time))) / 3600.0
+                        (strftime('%s', a.clock_out_time, 'localtime') - strftime('%s', a.clock_in_time, 'localtime')
+                        - (strftime('%s', a.break_out_time, 'localtime') - strftime('%s', a.break_in_time, 'localtime'))) / 3600.0
                     ELSE 
-                        (strftime('%s', 'now', 'localtime') - strftime('%s', a.clock_in_time)
-                         - (strftime('%s', a.break_out_time) - strftime('%s', a.break_in_time))) / 3600.0
+                        (strftime('%s', 'now', 'localtime') - strftime('%s', a.clock_in_time, 'localtime')
+                        - (strftime('%s', a.break_out_time, 'localtime') - strftime('%s', a.break_in_time, 'localtime'))) / 3600.0
                 END, 2
             ) AS hours_worked
         FROM 
@@ -295,8 +295,8 @@ router.get('/employees/user/:id/total/period/download', async (req, res) => {
             attendance a ON e.id = a.employee_id
         WHERE 
             e.id = ?
-            AND date(a.clock_in_time) >= date(?)
-            AND date(a.clock_in_time) <= date(?)
+            AND datetime(a.clock_in_time, 'localtime') >= datetime(?, 'localtime')
+            AND datetime(a.clock_in_time, 'localtime') <= datetime(?, 'localtime', '+1 day', '-1 second')
         ORDER BY 
             a.clock_in_time ASC;
     `;
@@ -320,14 +320,15 @@ router.get('/employees/user/:id/total/period/download', async (req, res) => {
 
             const formatDateAndDecimalTime = (timestamp) => {
                 if (!timestamp) return { date: '', time: 'N/A' };
-
-                const dateObj = new Date(timestamp);
+            
+                const dateObj = new Date(timestamp + 'Z'); // Force UTC interpretation for consistency
+                const localDate = dateObj.toLocaleDateString('en-CA'); // Format as YYYY-MM-DD in local time
                 const hours = dateObj.getHours();
                 const minutes = dateObj.getMinutes();
                 const decimalTime = hours + Math.round((minutes / 60) * 10) / 10;
-
+            
                 return {
-                    date: dateObj.toISOString().split('T')[0],
+                    date: localDate,
                     time: decimalTime.toFixed(1),
                 };
             };

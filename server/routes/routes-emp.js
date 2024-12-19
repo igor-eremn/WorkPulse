@@ -131,9 +131,11 @@ router.get('/employees/user/total', (req, res) => {
                 ROUND(SUM(
                     CASE 
                         WHEN a.clock_out_time IS NOT NULL THEN 
-                            (strftime('%s', a.clock_out_time) - strftime('%s', a.clock_in_time)) / 3600.0
+                            (strftime('%s', a.clock_out_time) - strftime('%s', a.clock_in_time)
+                             - (strftime('%s', a.break_out_time) - strftime('%s', a.break_in_time))) / 3600.0
                         ELSE 
-                            (strftime('%s', 'now', 'localtime') - strftime('%s', a.clock_in_time)) / 3600.0
+                            (strftime('%s', 'now', 'localtime') - strftime('%s', a.clock_in_time)
+                             - (strftime('%s', a.break_out_time) - strftime('%s', a.break_in_time))) / 3600.0
                     END
                 ), 2),
                 0
@@ -160,7 +162,7 @@ router.get('/employees/user/total', (req, res) => {
     });
 });
 
-// Get all regular users (role = 0) and their total hours worked set period
+// Get all regular users (role = 0) and their total hours worked for a specific period
 router.get('/employees/user/total/period', (req, res) => {
     const { startDate, endDate } = req.query;
 
@@ -172,9 +174,11 @@ router.get('/employees/user/total/period', (req, res) => {
                 ROUND(SUM(
                     CASE 
                         WHEN a.clock_out_time IS NOT NULL THEN 
-                            (strftime('%s', a.clock_out_time) - strftime('%s', a.clock_in_time)) / 3600.0
+                            (strftime('%s', a.clock_out_time) - strftime('%s', a.clock_in_time)
+                             - (strftime('%s', a.break_out_time) - strftime('%s', a.break_in_time))) / 3600.0
                         ELSE 
-                            (strftime('%s', 'now', 'localtime') - strftime('%s', a.clock_in_time)) / 3600.0
+                            (strftime('%s', 'now', 'localtime') - strftime('%s', a.clock_in_time)
+                             - (strftime('%s', a.break_out_time) - strftime('%s', a.break_in_time))) / 3600.0
                     END
                 ), 2),
                 0
@@ -195,7 +199,7 @@ router.get('/employees/user/total/period', (req, res) => {
 
     db.all(query, [startDate, endDate], (err, rows) => {
         if (err) {
-            console.error('Error fetching total hours worked:', err.message);
+            console.error('Error fetching total hours worked for the period:', err.message);
             res.status(500).json({ error: err.message });
         } else {
             res.json(rows);
