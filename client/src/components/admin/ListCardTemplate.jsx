@@ -2,27 +2,36 @@ import React from 'react';
 import './AdminStyle.css';
 import { IoDownload } from "react-icons/io5";
 
-function ListCardTemplate({ name, hoursWorked, id }) {
-
+function ListCardTemplate({ name, hoursWorked, id, datesAreSet, startDate, endDate }) {
   const download = async () => {
     try {
-      console.log("🚀 ~ ListCardTemplate ~ Downloading report for:", name)
-      const response = await fetch(`http://localhost:3000/employees/user/${id}/total/download`, {
-        method: 'GET',
-      });
+      const baseURL = 'http://localhost:3000/employees/user';
+      const url = datesAreSet
+        ? `${baseURL}/${id}/total/period/download?startDate=${startDate}&endDate=${endDate}`
+        : `${baseURL}/${id}/total/download`;
+
+      console.log(`🚀 ~ Downloading report for: ${name}`);
+      console.log(`🚀 ~ Using URL: ${url}`);
+
+      const response = await fetch(url, { method: 'GET' });
 
       if (!response.ok) {
         throw new Error('Failed to download the file');
       }
 
       const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
+      const downloadURL = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
-      a.href = url;
-      a.download = `total_hours_worked_${name}.xlsx`;
+      a.href = downloadURL;
+
+      const fileName = datesAreSet
+        ? `attendance_${name}_${startDate}_to_${endDate}.xlsx`
+        : `total_hours_worked_${name}.xlsx`;
+
+      a.download = fileName;
       document.body.appendChild(a);
       a.click();
-      window.URL.revokeObjectURL(url);
+      window.URL.revokeObjectURL(downloadURL);
       document.body.removeChild(a);
 
     } catch (err) {

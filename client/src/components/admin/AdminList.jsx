@@ -1,9 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import './AdminStyle.css';
 import ListCardTemplate from './ListCardTemplate';
-import DatePicker from './DatePicker'; // New component for selecting dates
-
-//TODO: figure out how to fix useEffect + resetDates + double click
+import DatePicker from './DatePicker';
 
 function List() {
   const [users, setUsers] = useState([]);
@@ -11,14 +9,13 @@ function List() {
   const [endDate, setEndDate] = useState('2024-12-18');
   const [datesAreSet, setDatesAreSet] = useState(false);
 
-  // Reset dates to today and unset the date filter
   const resetDates = () => {
     const today = new Date().toLocaleDateString('en-CA');
     setStartDate(today);
     setEndDate(today);
     setDatesAreSet(false);
   };
-  // Fetch users based on whether dates are set
+
   const fetchUsers = async () => {
     try {
       const url = datesAreSet
@@ -44,14 +41,11 @@ function List() {
     }
   };
 
-  // Trigger fetchUsers whenever startDate, endDate, or datesAreSet changes
   useEffect(() => {
     fetchUsers();
   }, [datesAreSet, startDate, endDate]);
 
-  // Update the date filter state when startDate or endDate changes
   useEffect(() => {
-    console.log('Date changed:', startDate, endDate);
     setDatesAreSet(true);
   }, [startDate, endDate]);
 
@@ -77,6 +71,9 @@ function List() {
               name={user.name}
               id={user.id}
               hoursWorked={user.hours_worked}
+              datesAreSet={datesAreSet}
+              startDate={startDate}
+              endDate={endDate}
             />
           ))
         ) : (
