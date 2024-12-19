@@ -264,4 +264,109 @@ router.get('/employees/user/:id/total/download', async (req, res) => {
     });
 });
 
+// Generate and download Excel file with specific employee's attendance records for a specific date period
+router.get('/employees/user/:id/total/period/download', async (req, res) => {
+    const { id: employeeId } = req.params;
+    const { startDate, endDate } = req.query; // Get the date range from query params
+
+    console.log("🚀 ~ router.get.report.period.id ~ employeeId:", employeeId);
+    console.log("🚀 ~ router.get.report.period.dates ~ Start:", startDate, "End:", endDate);
+
+    const query = `
+        SELECT 
+            e.name,
+            a.clock_in_time,
+            a.break_in_time,
+            a.break_out_time,
+            a.clock_out_time,
+            ROUND(
+                CASE 
+                    WHEN a.clock_out_time IS NOT NULL THEN 
+                        (strftime('%s', a.clock_out_time) - strftime('%s', a.clock_in_time)
+                         - (strftime('%s', a.break_out_time) - strftime('%s', a.break_in_time))) / 3600.0
+                    ELSE 
+                        (strftime('%s', 'now', 'localtime') - strftime('%s', a.clock_in_time)
+                         - (strftime('%s', a.break_out_time) - strftime('%s', a.break_in_time))) / 3600.0
+                END, 2
+            ) AS hours_worked
+        FROM 
+            employees e 
+        LEFT JOIN 
+            attendance a ON e.id = a.employee_id
+        WHERE 
+            e.id = ?
+            AND date(a.clock_in_time) >= date(?)
+            AND date(a.clock_in_time) <= date(?)
+        ORDER BY 
+            a.clock_in_time ASC;
+    `;
+
+    db.all(query, [employeeId, startDate, endDate], async (err, rows) => {
+        if (err) {
+            console.error('Error fetching attendance records:', err.message);
+            return res.status(500).json({ error: err.message });
+        }
+
+        if (!rows || rows.length === 0) {
+            return res.status(404).json({ error: 'No attendance records found for this employee in the specified period' });
+        }
+
+        try {
+            const workbook = new ExcelJS.Workbook();
+            const worksheet = workbook.addWorksheet('Attendance Records');
+
+            worksheet.addRow([`User: ${rows[0].name}`, `Start Date: ${startDate}`, `End Date: ${endDate}`]);
+            worksheet.addRow(['Date', 'Clock In', 'Break In', 'Break Out', 'Clock Out', 'Hours Worked']);
+
+            const formatDateAndDecimalTime = (timestamp) => {
+                if (!timestamp) return { date: '', time: 'N/A' };
+
+                const dateObj = new Date(timestamp);
+                const hours = dateObj.getHours();
+                const minutes = dateObj.getMinutes();
+                const decimalTime = hours + Math.round((minutes / 60) * 10) / 10;
+
+                return {
+                    date: dateObj.toISOString().split('T')[0],
+                    time: decimalTime.toFixed(1),
+                };
+            };
+
+            rows.forEach((row) => {
+                const clockIn = formatDateAndDecimalTime(row.clock_in_time);
+                const breakIn = formatDateAndDecimalTime(row.break_in_time);
+                const breakOut = formatDateAndDecimalTime(row.break_out_time);
+                const clockOut = formatDateAndDecimalTime(row.clock_out_time);
+
+                worksheet.addRow([
+                    clockIn.date,           // Date column
+                    clockIn.time,           // Clock In (decimal format)
+                    breakIn.time,           // Break In (decimal format)
+                    breakOut.time,          // Break Out (decimal format)
+                    clockOut.time,          // Clock Out (decimal format)
+                    row.hours_worked || 0,  // Hours Worked
+                ]);
+            });
+
+            const totalHours = rows.reduce((sum, row) => sum + (row.hours_worked || 0), 0);
+
+            worksheet.addRow([]);
+            worksheet.addRow(['Total Hours Worked', '', '', '', '', totalHours.toFixed(2)]);
+
+            res.setHeader(
+                'Content-Disposition',
+                `attachment; filename="attendance_${rows[0].name}_${startDate}_to_${endDate}.xlsx"`
+            );
+            res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+
+            await workbook.xlsx.write(res);
+            console.log("🚀 ~ router.get.report.period.id ~ Report for period generated, sending to client....");
+            res.end();
+        } catch (err) {
+            console.error('Error generating Excel file:', err.message);
+            res.status(500).json({ error: 'Failed to generate Excel file' });
+        }
+    });
+});
+
 module.exports = router;
