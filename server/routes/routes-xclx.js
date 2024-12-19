@@ -1,7 +1,8 @@
-const ExcelJS = require('exceljs');
-const express = require('express');
+import ExcelJS from 'exceljs';
+import express from 'express';
+import db from '../db/database.js';
+
 const router = express.Router();
-const db = require('../db/database');
 
 // Generate and download Excel file with users' total hours worked
 router.get('/employees/user/total/download', async (req, res) => {
@@ -375,4 +376,4 @@ router.get('/employees/user/:id/total/period/download', async (req, res) => {
     });
 });
 
-module.exports = router;
+export default router;

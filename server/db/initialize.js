@@ -1,6 +1,6 @@
-const db = require('./database');
+import db from './database.js';
 
-const initializeDatabase = () => {
+export const initializeDatabase = () => {
     db.serialize(() => {
         db.run(`
             CREATE TABLE IF NOT EXISTS employees (
@@ -26,5 +26,3 @@ const initializeDatabase = () => {
         console.log('Database initialized');
     });
 };
-
-module.exports = initializeDatabase;

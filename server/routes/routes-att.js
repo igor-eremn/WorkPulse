@@ -1,6 +1,7 @@
-const express = require('express');
+import express from 'express';
+import db from '../db/database.js';
+
 const router = express.Router();
-const db = require('../db/database');
 
 // Helper function for error handling
 const handleError = (res, err) => {
@@ -272,4 +273,4 @@ router.get('/attendance/hours/:employee_id', (req, res) => {
     });
 });
 
-module.exports = router;
+export default router;

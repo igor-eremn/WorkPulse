@@ -1,6 +1,8 @@
-const express = require('express');
+import express from 'express';
+import db from '../db/database.js';
+import moment from 'moment';
+
 const router = express.Router();
-const db = require('../db/database');
 
 // Generate custom employee IDs (e.g., 1001, 1002)
 const generateEmployeeId = (callback) => {
@@ -219,4 +221,4 @@ router.delete('/employees', (req, res) => {
     });
 });
 
-module.exports = router;
+export default router;
