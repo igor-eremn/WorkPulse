@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import './AdminStyle.css';
 import ListCardTemplate from './ListCardTemplate';
 import DatePicker from './DatePicker';
+const apiUrl = import.meta.env.VITE_API_URL;
 
 function List() {
   const [users, setUsers] = useState([]);
@@ -19,8 +20,8 @@ function List() {
   const fetchUsers = async () => {
     try {
       const url = datesAreSet
-        ? `http://localhost:3000/employees/user/total/period?startDate=${startDate}&endDate=${endDate}`
-        : `http://localhost:3000/employees/user/total`;
+        ? `${apiUrl}/employees/user/total/period?startDate=${startDate}&endDate=${endDate}`
+        : `${apiUrl}/employees/user/total`;
 
       const response = await fetch(url, {
         method: 'GET',

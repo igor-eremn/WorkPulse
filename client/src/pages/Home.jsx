@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
+const apiUrl = import.meta.env.VITE_API_URL;
 
 function Home( { setUser } ) {
   const [username, setUsername] = useState('');
@@ -19,7 +20,7 @@ function Home( { setUser } ) {
     e.preventDefault();
 
     try {
-        const response = await fetch('http://localhost:3000/employees/login', {
+        const response = await fetch(`${apiUrl}/employees/login`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

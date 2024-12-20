@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import './UserStyle.css';
 import TimeCard from './TimeCard';
 import HoursStat from './HoursStat';
+const apiUrl = import.meta.env.VITE_API_URL;
 
 function UserHistory({ id }) {
   const [historyData, setHistoryData] = useState([]); // Always initialize as an array
@@ -10,7 +11,7 @@ function UserHistory({ id }) {
   useEffect(() => {
     const fetchHistory = async () => {
       try {
-        const response = await fetch(`http://localhost:3000/attendance/${id}`, {
+        const response = await fetch(`${apiUrl}/attendance/${id}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -65,7 +66,7 @@ function UserHistory({ id }) {
 
     const fetchHours = async () => {
       try {
-        const response = await fetch(`http://localhost:3000/attendance/hours/${id}`, {
+        const response = await fetch(`${apiUrl}/attendance/hours/${id}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',

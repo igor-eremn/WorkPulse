@@ -1,11 +1,12 @@
 import React from 'react';
 import './AdminStyle.css';
 import { IoDownload } from "react-icons/io5";
+const apiUrl = import.meta.env.VITE_API_URL;
 
 function ListCardTemplate({ name, hoursWorked, id, datesAreSet, startDate, endDate }) {
   const download = async () => {
     try {
-      const baseURL = 'http://localhost:3000/employees/user';
+      const baseURL = `${apiUrl}/employees/user`;
       const url = datesAreSet
         ? `${baseURL}/${id}/total/period/download?startDate=${startDate}&endDate=${endDate}`
         : `${baseURL}/${id}/total/download`;

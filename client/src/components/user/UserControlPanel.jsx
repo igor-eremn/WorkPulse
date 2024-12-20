@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import './UserStyle.css';
 import SessionControls from './SessionControls';
 import TimeCard from './TimeCard';
+const apiUrl = import.meta.env.VITE_API_URL;
 
 function UserControlPanel({ id }) {
   const [userSelection, setUserSelection] = useState('idle');
@@ -43,7 +44,7 @@ function UserControlPanel({ id }) {
 
   const sendClockIn = async () => {
     try {
-      const response = await fetch(`http://localhost:3000/attendance/clock-in`, {
+      const response = await fetch(`${apiUrl}/attendance/clock-in`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -66,7 +67,7 @@ function UserControlPanel({ id }) {
 
   const sendClockOut = async () => {
     try {
-      const response = await fetch(`http://localhost:3000/attendance/clock-out`, {
+      const response = await fetch(`${apiUrl}/attendance/clock-out`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -89,7 +90,7 @@ function UserControlPanel({ id }) {
 
   const sendBreakIn = async () => {
     try {
-      const response = await fetch(`http://localhost:3000/attendance/break-in`, {
+      const response = await fetch(`${apiUrl}/attendance/break-in`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -112,7 +113,7 @@ function UserControlPanel({ id }) {
 
   const sendBreakOut = async () => {
     try {
-      const response = await fetch(`http://localhost:3000/attendance/break-out`, {
+      const response = await fetch(`${apiUrl}/attendance/break-out`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -135,7 +136,7 @@ function UserControlPanel({ id }) {
 
   const getTodaySession = async () => {
     try {
-      const response = await fetch(`http://localhost:3000/attendance/today?employee_id=${id}`, {
+      const response = await fetch(`${apiUrl}/attendance/today?employee_id=${id}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
