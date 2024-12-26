@@ -1,7 +1,7 @@
 body {
   margin: 0;
   font-family: Arial, sans-serif;
-  background-color: #242424;
+  background-color: #f5f6fa;
   display: flex;
   justify-content: center;
   font-family: monospace;
@@ -10,8 +10,8 @@ body {
 .app-container {
   width: 552px;
   margin: 0 auto;
-  background-color: #242424;
-  border-inline: 1px solid white;
+  background-color: #f5f6fa;
+  border-inline: 3px solid #e1e8f0;
 }
 
 .centered-container {
@@ -22,7 +22,7 @@ body {
   height: 100%;
 }
 
-/* - - - - - - - - HEADER - - - - - - - - */
+/* Header styles */
 .header-container {
   margin-top: 40px;
   text-align: center;
@@ -33,11 +33,12 @@ body {
   transform: translateX(-50%);
   width: 100%;
   box-sizing: border-box;
-  border-bottom: 1px solid white;
+  border-bottom: 3px solid #e1e8f0;
+  background-color: none;
 }
 
 .header-title {
-  color: rgb(175, 175, 175);
+  color: #3498db;
   font-size: 50px;
   font-weight: bold;
   text-decoration: none;
@@ -54,16 +55,17 @@ body {
 .header-label {
   font-size: 16px;
   font-weight: 500;
-  letter-spacing: 0.9em; /* Adjusted for spacing balance */
-  color: rgb(150, 150, 150);
+  letter-spacing: 0.9em;
+  color: #7f8c8d;
   text-transform: uppercase;
-  width: 100%; /* Matches the container width */
+  width: 100%;
   box-sizing: border-box;
-  padding: 4px 0; /* Padding for spacing */
-  text-align: center; /* Ensures proper centering */
-  margin: 0 auto; /* Centers within the parent container */
+  padding: 4px 0;
+  text-align: center;
+  margin: 0 auto;
 }
-/* - - - - - - - LOGIN FORM - - - - - - - */
+
+/* Login form styles */
 .login-form {
   display: flex;
   flex-direction: column;
@@ -81,31 +83,31 @@ body {
   height: 40px;
   padding: 12px;
   font-size: 16px;
-  border: 1px solid #ccc;
+  border: 1px solid #bdc3c7;
   border-radius: 4px;
   box-sizing: border-box;
 }
 
 .form-input {
   text-align: center;
-  background-color: #131212;
+  background-color: #ffffff;
+  color: #2c3e50;
 }
 
 .form-button {
-  background-color: #494b4d;
+  background-color: #3498db;
   color: white;
   border: none;
   cursor: pointer;
-  border: 1px solid white;
+  border: 1px solid #2980b9;
   transition: all 0.8s ease;
 }
 
 .form-button:hover {
-  background-color: #131212;
+  background-color: #2980b9;
 }
 
-
-/* - - - - - - - - PAGE STYLE - - - - - - - - */
+/* Page styles */
 .page-style {
   margin-top: 140px;
   display: flex;

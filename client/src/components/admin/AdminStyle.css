@@ -1,81 +1,78 @@
 .admin-dashboard {
-    display: flex;
-    justify-content: space-around;
-    margin: 20px 0;
-    border-bottom: 1px solid white;
-    width: 552px;
-    padding-top: 15px;
-    padding-bottom: 15px;
-  }
-  
-  .admin-dashboard-button {
-    width: 100px;
-    height: 40px;
-    font-size: 20px;
-    font-weight: bold;
-    background-color: rgb(50, 50, 50);
-    color: white;
-    border: 1px solid white;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-  }
-  
-  .admin-dashboard-button:hover {
-    background-color: rgb(80, 80, 80);
-    opacity: 0.8;
-  }
-  
-  .admin-content {
-    margin-top: 20px;
-    text-align: center;
-  }
-  
-  .admin-component-placeholder {
-    font-size: 18px;
-    font-weight: bold;
-    color: rgb(150, 150, 150);
-  }
+  display: flex;
+  justify-content: space-around;
+  margin: 20px 0;
+  border-bottom: 3px solid #e1e8f0;
+  width: 552px;
+  padding-top: 15px;
+  padding-bottom: 15px;
+}
 
+.admin-dashboard-button {
+  width: 100px;
+  height: 40px;
+  font-size: 20px;
+  font-weight: bold;
+  background-color: #3498db;
+  color: white;
+  border: 1px solid #2980b9;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.admin-dashboard-button:hover {
+  background-color: #2980b9;
+  opacity: 0.8;
+}
+
+.admin-content {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.admin-component-placeholder {
+  font-size: 18px;
+  font-weight: bold;
+  color: #7f8c8d;
+}
 
 /* List styles */
-/* List Container */
 .list-container {
   padding: 20px;
   border-radius: 8px;
-  color: white;
+  color: #2c3e50;
   text-align: center;
   width: 450px;
   margin: 0 auto;
 }
 
-/* List Title */
 .list-title {
   font-size: 24px;
   font-weight: bold;
   margin-bottom: 20px;
+  color: #2c3e50;
 }
 
-/* List Card */
 .list-card {
-  background-color: rgb(30, 30, 30);
-  color: white;
+  background-color: #ffffff;
+  color: #2c3e50;
   padding-inline: 20px;
   padding-block: 10px;
   margin-bottom: 20px;
   text-align: left;
-  border: 1px solid white;
+  border: 1px solid #bdc3c7;
   border-radius: 8px;
   width: 400px;
-
-  display: flex; /* Enables Flexbox */
-  justify-content: space-between; /* Content and icon on opposite sides */
-  align-items: center; /* Vertically center the content */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .list-card-content {
   display: flex;
-  flex-direction: column; /* Keep text in a column layout */
+  flex-direction: column;
 }
 
 .list-card-name, .list-card-role {
@@ -84,62 +81,59 @@
 }
 
 .list-card-download {
-  font-size: 30px; /* Adjust the icon size */
+  font-size: 30px;
   cursor: pointer;
+  color: #3498db;
 }
-
 
 /* Date Picker Card */
 .date-picker-card {
-  background-color: rgb(30, 30, 30);
-  color: white;
+  background-color: #ffffff;
+  color: #2c3e50;
   padding: 20px;
   margin-bottom: 20px;
   text-align: left;
-  border: 1px solid white;
+  border: 1px solid #bdc3c7;
   border-radius: 8px;
   width: 400px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: 15px; /* Add spacing between rows */
+  gap: 15px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-/* Date Picker Row */
 .date-picker-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
-/* Label */
 .date-picker-label {
   font-size: 16px;
   font-weight: bold;
+  color: #2c3e50;
 }
 
-/* Input */
 .date-picker-input {
-  background-color: rgb(50, 50, 50);
-  color: white;
-  border: 1px solid white;
+  background-color: #ffffff;
+  color: #2c3e50;
+  border: 1px solid #bdc3c7;
   border-radius: 4px;
   padding: 5px;
-  width: 138px; /* Align input with right-side spacing */
+  width: 138px;
 }
 
-/* Actions Row */
 .date-picker-actions {
   display: flex;
   justify-content: flex-end;
-  gap: 15px; /* Add spacing between buttons */
+  gap: 15px;
 }
 
-/* Button */
 .date-picker-button {
-  background-color: rgb(50, 50, 50);
+  background-color: #3498db;
   color: white;
-  border: 1px solid white;
+  border: 1px solid #2980b9;
   border-radius: 4px;
   padding: 5px;
   cursor: pointer;
@@ -148,15 +142,15 @@
 }
 
 .date-picker-button:hover {
-  background-color: rgb(156, 75, 75);
+  background-color: #e74c3c;
 }
 
 .date-picker-button.proceed:hover {
-  background-color: rgb(80, 165, 113);
+  background-color: #27ae60;
 }
 
 .admin-stat-line {
-  color: white;
+  color: #2c3e50;
   padding-inline: 20px;
   padding-top: 15px;
   padding-bottom: 5px;
@@ -169,6 +163,6 @@
   margin-bottom: 10px;
   font-size: 20px;
   font-weight: bold;
-  color: white;
+  color: #2c3e50;
   text-align: center;
 }
