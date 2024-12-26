@@ -24,11 +24,11 @@ const DeviceChecker = ({ children }) => {
 
   if (isMobile) {
     return (
-      <div className="p-4 bg-red-100 border border-red-400 rounded">
-        <div className="font-bold text-red-700 mb-2">
+      <div className="device-checker-container">
+        <div className="device-checker-title">
           Desktop Access Required
         </div>
-        <div className="text-red-600">
+        <div className="device-checker-message">
           Please use a desktop computer to access this application. Mobile access is currently restricted for regular users.
         </div>
       </div>

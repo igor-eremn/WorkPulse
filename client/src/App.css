@@ -128,3 +128,30 @@ body {
   align-items: center;
   justify-content: start;
 }
+
+/* Device Checker styles */
+.device-checker-container {
+  width: 400px;
+  margin: 20px auto;
+  padding: 20px;
+  text-align: center;
+  background-color: #ffffff;
+  border: 1px solid #bdc3c7;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.device-checker-title {
+  color: #3498db;
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 12px;
+  font-family: monospace;
+}
+
+.device-checker-message {
+  color: #7f8c8d;
+  font-size: 16px;
+  line-height: 1.5;
+  font-family: monospace;
+}
