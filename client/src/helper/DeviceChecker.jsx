@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 const DeviceChecker = ({ children }) => {
   const [isMobile, setIsMobile] = useState(false);
@@ -25,14 +24,18 @@ const DeviceChecker = ({ children }) => {
 
   if (isMobile) {
     return (
-      <Alert variant="destructive">
-        <AlertTitle>Desktop Access Required</AlertTitle>
-        <AlertDescription>
+      <div className="p-4 bg-red-100 border border-red-400 rounded">
+        <div className="font-bold text-red-700 mb-2">
+          Desktop Access Required
+        </div>
+        <div className="text-red-600">
           Please use a desktop computer to access this application. Mobile access is currently restricted for regular users.
-        </AlertDescription>
-      </Alert>
+        </div>
+      </div>
     );
   }
 
   return children;
 };
+
+export default DeviceChecker;
