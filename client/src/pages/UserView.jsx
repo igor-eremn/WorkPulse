@@ -4,10 +4,10 @@ import UserDashboard from '../components/user/UserDashboard';
 import UserControlPanel from '../components/user/UserControlPanel';
 import UserHistory from '../components/user/UserHistory';
 import { useNavigate } from 'react-router-dom';
+import DeviceChecker from '../helper/DeviceChecker';
 
 function UserView({ userId }) {
   const navigate = useNavigate();
-
   const controlPanelRef = useRef(null);
   const historyRef = useRef(null);
 
@@ -19,6 +19,7 @@ function UserView({ userId }) {
       console.log('USER VIEW SAYS: uid -> ', userId);
     }
   }, [userId, navigate]);
+
   const scrollToSection = (section) => {
     if (section === 'Dashboard' && controlPanelRef.current) {
       controlPanelRef.current.scrollIntoView({ behavior: 'smooth' });
@@ -33,13 +34,15 @@ function UserView({ userId }) {
         <div ref={controlPanelRef}>
           <Header title="WORKPULSE" pageName="USER VIEW" />
         </div>
-        <UserDashboard scrollToSection={scrollToSection} />
-        <div className="admin-user-content">
-          <UserControlPanel id={userId} />
-          <div ref={historyRef}>
-            <UserHistory id={userId} />
+        <DeviceChecker>
+          <UserDashboard scrollToSection={scrollToSection} />
+          <div className="admin-user-content">
+            <UserControlPanel id={userId} />
+            <div ref={historyRef}>
+              <UserHistory id={userId} />
+            </div>
           </div>
-        </div>
+        </DeviceChecker>
       </div>
     </div>
   );
