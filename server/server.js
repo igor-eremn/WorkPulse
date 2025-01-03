@@ -3,14 +3,29 @@ import bodyParser from 'body-parser';
 import cors from 'cors';
 import cron from 'node-cron';
 import fetch from 'node-fetch';
+import { MongoClient, ServerApiVersion } from 'mongodb';
+import dotenv from 'dotenv';
 
-import peopleRoutes         from './routes/routes-emp.js';
-import timeRoutes           from './routes/routes-att.js';
-import xclRoutes            from './routes/routes-xclx.js';
-import maintenanceRoutes    from './routes/routes-maint.js';
+dotenv.config();
+const uri = process.env.MONGO_URI;
+const client = new MongoClient(uri, {
+    serverApi: {
+        version: ServerApiVersion.v1,
+        strict: true,
+        deprecationErrors: true,
+    },
+});
 
-import { initializeDatabase } from './db/initialize.js';
-initializeDatabase();
+async function connectToDatabase() {
+    try {
+        await client.connect();
+        console.log("Pinged your deployment. You successfully connected to MongoDB!");
+    } catch (err) {
+        console.error("❌ Failed to connect to MongoDB:", err.message);
+        process.exit(1);
+    }
+}
+connectToDatabase();
 
 const app = express();
 const PORT = 3000;
@@ -18,14 +33,33 @@ const PORT = 3000;
 app.use(cors());
 app.use(bodyParser.json());
 
+import peopleRoutes from './routes/routes-emp.js';
+import timeRoutes from './routes/routes-att.js';
+import xclRoutes from './routes/routes-xclx.js';
+import maintenanceRoutes from './routes/routes-maint.js';
+
 app.use('/', peopleRoutes);
 app.use('/', timeRoutes);
 app.use('/', xclRoutes);
 app.use('/', maintenanceRoutes);
 
-initializeDatabase();
+/* TEST FOR DB */
+app.get('/test-connection', async (req, res) => {
+    try {
+        const db = client.db('DB1');
+        const collection = db.collection('test_collection');
+        const testDocument = await collection.insertOne({ message: 'Connection successful' });
+        res.status(200).json({
+            success: true,
+            document: testDocument,
+        });
+    } catch (err) {
+        console.error('❌ Error testing connection:', err.message);
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
 
-cron.schedule('42 23 * * *', async () => {
+cron.schedule('30 23 * * *', async () => {
     try {
         console.log("🚀 ~ SERVER MESSAGE ~ Running scheduled maintenance at 11:42 PM...");
         const response = await fetch('http://localhost:3000/attendance/maintain', {
@@ -44,5 +78,5 @@ cron.schedule('42 23 * * *', async () => {
 });
 
 app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
+    console.log(`🚀 Server running on http://localhost:${PORT}`);
 });
