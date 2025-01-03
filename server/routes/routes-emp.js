@@ -1,82 +1,87 @@
 import express from 'express';
-//import db from '../db/database.js';
-import moment from 'moment';
+import { ObjectId } from 'mongodb';
+import client from '../mongoClient.js';
 
 const router = express.Router();
 
-// Generate custom employee IDs (e.g., 1001, 1002)
-const generateEmployeeId = (callback) => {
-    const query = `SELECT MAX(CAST(SUBSTR(id, 4) AS INTEGER)) AS max_id FROM employees`;
-    db.get(query, [], (err, row) => {
-        if (err) {
-            console.error('Error generating employee ID:', err.message);
-            return callback(null);
-        }
-        const nextId = row.max_id ? `100${row.max_id + 1}` : '1001';
-        callback(nextId);
-    });
-};
+const db = client.db('DB1');
+const employeesCollection = db.collection('employees');
+const attendanceCollection = db.collection('attendance');
 
 // Add a new employee
-router.post('/employees', (req, res) => {
+router.post('/employees', async (req, res) => {
     const { name, role, password } = req.body;
-    generateEmployeeId((id) => {
-        if (!id) {
-            return res.status(500).json({ error: 'Failed to generate employee ID' });
-        }
 
-        const query = `INSERT INTO employees (id, name, role, password) VALUES (?, ?, ?, ?)`;
-        db.run(query, [id, name, role, password], function (err) {
-            if (err) {
-                res.status(500).json({ error: err.message });
-            } else {
-                res.status(201).json({ id, name });
-            }
-        });
-    });
+    try {
+        const employee = { name, role, password };
+        const result = await employeesCollection.insertOne(employee);
+
+        res.status(201).json({ id: result.insertedId, name });
+    } catch (err) {
+        console.error('Error adding employee:', err.message);
+        res.status(500).json({ error: err.message });
+    }
 });
 
 // Get all employees
-router.get('/employees', (req, res) => {
-    const query = `SELECT id, role, name FROM employees`;
-    db.all(query, [], (err, rows) => {
-        if (err) {
-            res.status(500).json({ error: err.message });
-        } else {
-            res.json(rows);
-        }
-    });
+router.get('/employees', async (req, res) => {
+    try {
+        const employees = await employeesCollection.find({}, { projection: { password: 0 } }).toArray();
+        res.json(employees);
+    } catch (err) {
+        console.error('Error fetching employees:', err.message);
+        res.status(500).json({ error: err.message });
+    }
 });
 
 // Employee login
-router.post('/employees/login', (req, res) => {
+router.post('/employees/login', async (req, res) => {
     const { name, password } = req.body;
-    const query = `SELECT id, role FROM employees WHERE name = ? AND password = ?`;
-    db.get(query, [name, password], (err, row) => {
-        if (err) {
-            res.status(500).json({ error: err.message });
-        } else {
-            if (row) {
-                res.json(row);
-            } else {
-                res.status(401).json({ error: 'Invalid username or password' });
-            }
+
+    try {
+        const employee = await employeesCollection.findOne({ name });
+        if (!employee) {
+            console.log('❌ User not found:', name);
+            return res.status(401).json({ error: 'User not found' });
         }
-    });
+
+        const match = employee.password === password;
+        if (!match) {
+            console.log('❌ Invalid username or password');
+            return res.status(401).json({ error: 'Invalid username or password' });
+        }
+
+        console.log('✅ User logged in:', name);
+        res.json({ id: employee._id, role: employee.role });
+    } catch (err) {
+        console.error('Error during login:', err.message);
+        res.status(500).json({ error: err.message });
+    }
 });
 
 // Get all regular users (role = 0)
-router.get('/employees/user', (req, res) => {
-    const query = `SELECT id, name FROM employees WHERE role = 0`;
-    db.all(query, [], (err, rows) => {
-        if (err) {
-            res.status(500).json({ error: err.message });
-        } else {
-            res.json(rows);
-        }
-    });
+router.get('/employees/user', async (req, res) => {
+    try {
+        const users = await employeesCollection.find({ role: 0 }, { projection: { password: 0 } }).toArray();
+        res.json(users);
+    } catch (err) {
+        console.error('Error fetching regular users:', err.message);
+        res.status(500).json({ error: err.message });
+    }
 });
 
+// Delete all employees
+router.delete('/employees', async (req, res) => {
+    try {
+        const result = await employeesCollection.deleteMany({});
+        res.json({ message: `${result.deletedCount} employees deleted` });
+    } catch (err) {
+        console.error('Error deleting employees:', err.message);
+        res.status(500).json({ error: err.message });
+    }
+});
+
+/*
 // Get all regular users (role = 0) and their total hours worked today
 router.get('/employees/user/today', (req, res) => {
     const query = `
@@ -121,7 +126,6 @@ router.get('/employees/user/today', (req, res) => {
         }
     });
 });
-
 
 // Get all regular users (role = 0) and their total hours worked
 router.get('/employees/user/total', (req, res) => {
@@ -208,17 +212,6 @@ router.get('/employees/user/total/period', (req, res) => {
         }
     });
 });
-
-// Delete all employees
-router.delete('/employees', (req, res) => {
-    const query = `DELETE FROM employees`;
-    db.run(query, [], function (err) {
-        if (err) {
-            res.status(500).json({ error: err.message });
-        } else {
-            res.json({ message: 'All employees deleted' });
-        }
-    });
-});
+*/
 
 export default router;
