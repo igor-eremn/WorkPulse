@@ -9,6 +9,8 @@ import { Navigate } from 'react-router-dom';
 function App() {
   const [sessionUser, setSessionUser] = useState(0);
 
+  //TODO: https://www.npmjs.com/package/react-notifications for responses from the server
+
   return (
     <Router>
       <div className="app-container">

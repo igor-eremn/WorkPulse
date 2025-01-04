@@ -1,7 +1,11 @@
 import express from 'express';
-//import db from '../db/database.js';
+import { ObjectId } from 'mongodb';
+import client from '../mongoClient.js';
 
 const router = express.Router();
+const db = client.db('DB1');
+const attendanceCollection = db.collection('attendance');
+const employeesCollection = db.collection('employees');
 
 // Helper function for error handling
 const handleError = (res, err) => {
@@ -9,208 +13,183 @@ const handleError = (res, err) => {
     res.status(500).json({ error: err.message });
 };
 
-const generateAttendanceId = (callback) => {
-    const query = `SELECT MAX(CAST(SUBSTR(id, 4) AS INTEGER)) AS max_id FROM attendance`;
-    db.get(query, [], (err, row) => {
-        if (err) {
-            console.error('Error generating attendance ID:', err.message);
-            return callback(null);
-        }
-        const nextId = row.max_id ? `200${row.max_id + 1}` : '2001';
-        callback(nextId);
-    });
-};
-
 // Clock-In
-router.post('/attendance/clock-in', (req, res) => {
+router.post('/attendance/clock-in', async (req, res) => {
     const { employee_id } = req.body;
+
     if (!employee_id) {
         return res.status(400).json({ error: 'Employee ID is required' });
     }
 
-    const checkQuery = `
-        SELECT id 
-        FROM attendance 
-        WHERE employee_id = ? 
-        AND date(clock_in_time) = date('now', 'localtime')
-    `;
+    console.log("📊📊 Received clock-in reqest for user with id: ", employee_id);
+    try {
+        const todayStart = new Date();
+        todayStart.setHours(0, 0, 0, 0);
 
-    db.get(checkQuery, [employee_id], (err, row) => {
-        if (err) return handleError(res, err);
+        const existingRecord = await attendanceCollection.findOne({
+            employee_id: new ObjectId(employee_id),
+            clock_in_time: { $gte: todayStart },
+        });
 
-        if (row) {
+        if (existingRecord) {
+            console.log("📊⚠️  User with id: ", employee_id, " has already clocked in today");
             return res.status(400).json({ error: 'You have already clocked in today' });
         }
 
-        // Generate custom ID for the attendance record
-        generateAttendanceId((id) => {
-            if (!id) {
-                return res.status(500).json({ error: 'Failed to generate attendance ID' });
-            }
-
-            const insertQuery = `
-                INSERT INTO attendance (id, employee_id, clock_in_time) 
-                VALUES (?, ?, datetime('now', 'localtime'))
-            `;
-            db.run(insertQuery, [id, employee_id], function (err) {
-                if (err) return handleError(res, err);
-
-                res.status(201).json({ id, message: 'Clock-in successful' });
-            });
+        const clockInTime = new Date();
+        const result = await attendanceCollection.insertOne({
+            employee_id: new ObjectId(employee_id),
+            clock_in_time: clockInTime,
+            break_in_time: null,
+            break_out_time: null,
+            clock_out_time: null,
         });
-    });
+
+        console.log("📊✅ User with id: ", employee_id, " clocked in successfully");
+        res.status(201).json({ id: result.insertedId, message: 'Clock-in successful' });
+    } catch (err) {
+        handleError(res, err);
+    }
 });
 
 // Break-In
-router.put('/attendance/break-in', (req, res) => {
+router.put('/attendance/break-in', async (req, res) => {
     const { employee_id } = req.body;
+
     if (!employee_id) {
         return res.status(400).json({ error: 'Employee ID is required' });
     }
 
-    const checkQuery = `
-        SELECT id, break_in_time 
-        FROM attendance 
-        WHERE employee_id = ? 
-        AND date(clock_in_time) = date('now', 'localtime')
-    `;
+    console.log("📊📊 Received break-in reqest for user with id: ", employee_id);
+    try {
+        const todayStart = new Date();
+        todayStart.setHours(0, 0, 0, 0);
 
-    db.get(checkQuery, [employee_id], (err, row) => {
-        if (err) return handleError(res, err);
+        const record = await attendanceCollection.findOne({
+            employee_id: new ObjectId(employee_id),
+            clock_in_time: { $gte: todayStart },
+        });
 
-        if (!row) {
+        if (!record) {
+            console.log("📊⚠️  User with id: ", employee_id, " has not clocked in today");
             return res.status(400).json({ error: 'No clock-in record found for today' });
         }
 
-        if (row.break_in_time) {
+        if (record.break_in_time) {
+            console.log("📊⚠️  User with id: ", employee_id, " has already started a break");
             return res.status(400).json({ error: 'Break has already started' });
         }
 
-        const updateQuery = `
-            UPDATE attendance SET break_in_time = datetime('now', 'localtime') WHERE id = ?
-        `;
-        db.run(updateQuery, [row.id], function (err) {
-            if (err) return handleError(res, err);
+        await attendanceCollection.updateOne(
+            { _id: record._id },
+            { $set: { break_in_time: new Date() } }
+        );
 
-            res.json({ message: 'Break-in time recorded' });
-        });
-    });
+        console.log("📊✅ User with id: ", employee_id, " started a break successfully");
+        res.json({ message: 'Break-in time recorded' });
+    } catch (err) {
+        handleError(res, err);
+    }
 });
 
 // Break-Out
-router.put('/attendance/break-out', (req, res) => {
+router.put('/attendance/break-out', async (req, res) => {
     const { employee_id } = req.body;
+
     if (!employee_id) {
         return res.status(400).json({ error: 'Employee ID is required' });
     }
 
-    const checkQuery = `
-        SELECT id, break_in_time, break_out_time 
-        FROM attendance 
-        WHERE employee_id = ? 
-        AND date(clock_in_time) = date('now', 'localtime')
-    `;
+    console.log("📊📊 Received break-out reqest for user with id: ", employee_id);
+    try {
+        const todayStart = new Date();
+        todayStart.setHours(0, 0, 0, 0);
 
-    db.get(checkQuery, [employee_id], (err, row) => {
-        if (err) return handleError(res, err);
+        const record = await attendanceCollection.findOne({
+            employee_id: new ObjectId(employee_id),
+            clock_in_time: { $gte: todayStart },
+        });
 
-        if (!row || !row.break_in_time) {
+        if (!record || !record.break_in_time) {
+            console.log("📊⚠️  User with id: ", employee_id, " has not started a break today");
             return res.status(400).json({ error: 'Cannot break out without starting a break' });
         }
 
-        if (row.break_out_time) {
+        if (record.break_out_time) {
+            console.log("📊⚠️  User with id: ", employee_id, " has already ended the break");
             return res.status(400).json({ error: 'Break has already ended' });
         }
 
-        const updateQuery = `
-            UPDATE attendance SET break_out_time = datetime('now', 'localtime') WHERE id = ?
-        `;
-        db.run(updateQuery, [row.id], function (err) {
-            if (err) return handleError(res, err);
+        await attendanceCollection.updateOne(
+            { _id: record._id },
+            { $set: { break_out_time: new Date() } }
+        );
 
-            res.json({ message: 'Break-out time recorded' });
-        });
-    });
+        console.log("📊✅ User with id: ", employee_id, " ended the break successfully");
+        res.json({ message: 'Break-out time recorded' });
+    } catch (err) {
+        handleError(res, err);
+    }
 });
 
 // Clock-Out
-router.put('/attendance/clock-out', (req, res) => {
+router.put('/attendance/clock-out', async (req, res) => {
     const { employee_id } = req.body;
+
     if (!employee_id) {
         return res.status(400).json({ error: 'Employee ID is required' });
     }
 
-    const checkQuery = `
-        SELECT id, clock_out_time 
-        FROM attendance 
-        WHERE employee_id = ? 
-        AND date(clock_in_time) = date('now', 'localtime')
-    `;
+    console.log("📊📊 Received clock-out reqest for user with id: ", employee_id);
+    try {
+        const todayStart = new Date();
+        todayStart.setHours(0, 0, 0, 0);
 
-    db.get(checkQuery, [employee_id], (err, row) => {
-        if (err) return handleError(res, err);
+        const record = await attendanceCollection.findOne({
+            employee_id: new ObjectId(employee_id),
+            clock_in_time: { $gte: todayStart },
+        });
 
-        if (!row) {
+        if (!record) {
+            console.log("📊⚠️  User with id: ", employee_id, " has not clocked in today");
             return res.status(400).json({ error: 'No clock-in record found for today' });
         }
 
-        if (row.clock_out_time) {
+        if (record.clock_out_time) {
+            console.log("📊⚠️  User with id: ", employee_id, " has already clocked out today");
             return res.status(400).json({ error: 'Already clocked out today' });
         }
 
-        const updateQuery = `
-            UPDATE attendance SET clock_out_time = datetime('now', 'localtime') WHERE id = ?
-        `;
-        db.run(updateQuery, [row.id], function (err) {
-            if (err) return handleError(res, err);
+        await attendanceCollection.updateOne(
+            { _id: record._id },
+            { $set: { clock_out_time: new Date() } }
+        );
 
-            res.json({ message: 'Clock-out time recorded' });
-        });
-    });
+        console.log("📊✅ User with id: ", employee_id, " clocked out successfully");
+        res.json({ message: 'Clock-out time recorded' });
+    } catch (err) {
+        handleError(res, err);
+    }
 });
 
 // Fetch Attendance Records
-router.get('/attendance', (req, res) => {
-    const query = `
-        SELECT 
-            a.id, a.employee_id, a.clock_in_time, a.break_in_time, a.break_out_time, a.clock_out_time
-        FROM 
-            attendance a
-        JOIN 
-            employees e ON a.employee_id = e.id
-    `;
-    db.all(query, [], (err, rows) => {
-        if (err) return handleError(res, err);
+router.get('/attendance', async (req, res) => {
+    try {
+        const records = await attendanceCollection
+            .find()
+            .sort({ clock_in_time: -1 })
+            .toArray();
 
-        res.json(rows);
-    });
-});
-
-// Fetch Today's Attendance for an Employee
-router.get('/attendance/today', (req, res) => {
-    const { employee_id } = req.query;
-    if (!employee_id) {
-        return res.status(400).json({ error: 'Employee ID is required' });
+        console.log("📊📊 Fetched attendance records successfully");
+        res.json(records);
+    } catch (err) {
+        handleError(res, err);
     }
-
-    const query = `
-        SELECT 
-            a.id, e.name, a.clock_in_time, a.break_in_time, a.break_out_time, a.clock_out_time
-        FROM 
-            attendance a
-        JOIN 
-            employees e ON a.employee_id = e.id
-        WHERE 
-            a.employee_id = ?
-        AND date(a.clock_in_time) = date('now', 'localtime')
-    `;
-    db.all(query, [employee_id], (err, rows) => {
-        if (err) return handleError(res, err);
-
-        res.json(rows);
-    });
 });
 
+export default router;
+
+/*
 //Delete all attendance records
 router.delete('/attendance', (req, res) => {
     const query = `DELETE FROM attendance`;
@@ -273,4 +252,4 @@ router.get('/attendance/hours/:employee_id', (req, res) => {
     });
 });
 
-export default router;
+export default router;*/

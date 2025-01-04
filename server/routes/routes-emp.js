@@ -16,6 +16,7 @@ router.post('/employees', async (req, res) => {
         const employee = { name, role, password };
         const result = await employeesCollection.insertOne(employee);
 
+        console.log('✅ Employee added:', name);
         res.status(201).json({ id: result.insertedId, name });
     } catch (err) {
         console.error('Error adding employee:', err.message);
@@ -27,6 +28,7 @@ router.post('/employees', async (req, res) => {
 router.get('/employees', async (req, res) => {
     try {
         const employees = await employeesCollection.find({}, { projection: { password: 0 } }).toArray();
+        console.log('✅ Employees fetched:', employees.length);
         res.json(employees);
     } catch (err) {
         console.error('Error fetching employees:', err.message);
@@ -63,20 +65,10 @@ router.post('/employees/login', async (req, res) => {
 router.get('/employees/user', async (req, res) => {
     try {
         const users = await employeesCollection.find({ role: 0 }, { projection: { password: 0 } }).toArray();
+        console.log('✅ Regular users fetched:', users.length);
         res.json(users);
     } catch (err) {
         console.error('Error fetching regular users:', err.message);
-        res.status(500).json({ error: err.message });
-    }
-});
-
-// Delete all employees
-router.delete('/employees', async (req, res) => {
-    try {
-        const result = await employeesCollection.deleteMany({});
-        res.json({ message: `${result.deletedCount} employees deleted` });
-    } catch (err) {
-        console.error('Error deleting employees:', err.message);
         res.status(500).json({ error: err.message });
     }
 });
