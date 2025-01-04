@@ -11,6 +11,19 @@ const employeesCollection = db.collection('employees');
 const getLocalTime = () => moment().tz('America/Los_Angeles').format();
 const getTodayStart = () => moment().tz('America/Los_Angeles').startOf('day').toISOString();
 
+// 10 min - 0.17 h, 15 min - 0.25 h, 
+// 20 min - 0.33 h, 25 min - 0.42 h, 
+// 30 min - 0.50 h, 35 min - 0.58 h, 
+// 40 min - 0.67 h, 45 min - 0.75 h, 
+// 50 min - 0.83 h, 55 min - 0.92 h,
+const calculateDuration = (start, end) => {
+    if (!start || !end) {
+        return 0;
+    }
+    const startDateTime = moment(start);
+    const endDateTime = moment(end);
+    return parseFloat(endDateTime.diff(startDateTime, 'hours', true).toFixed(3));
+};
 
 // Helper function for error handling
 const handleError = (res, err) => {
@@ -215,6 +228,66 @@ router.get('/attendance/today', async (req, res) => {
 
         console.log("📊📊 Fetched today's attendance records successfully");
         res.json(records);
+    } catch (err) {
+        handleError(res, err);
+    }
+});
+
+// Fetch all attendance records for a specific employee (excluding today's records) sorted by date
+router.get('/attendance/:employee_id', async (req, res) => {
+    const { employee_id } = req.params;
+
+    if (!employee_id) {
+        return res.status(400).json({ error: 'Employee ID is required' });
+    }
+
+    console.log("📊📊 Received request for attendance records for user with id: ", employee_id);
+    try {
+        const todayStart = getTodayStart();
+
+        const records = await attendanceCollection
+            .find({
+                employee_id: new ObjectId(employee_id),
+                clock_in_time: { $lt: todayStart },
+            })
+            .sort({ clock_in_time: -1 })
+            .toArray();
+
+        console.log("📊📊 Fetched attendance records successfully");
+        res.json(records);
+    } catch (err) {
+        handleError(res, err);
+    }
+});
+
+// Fetch number of hours worked for a specific employee this month
+router.get('/attendance/hours/:employee_id', async (req, res) => {
+    const { employee_id } = req.params;
+
+    if (!employee_id) {
+        return res.status(400).json({ error: 'Employee ID is required' });
+    }
+
+    console.log("📊📊 Received request for hours worked for user with id: ", employee_id);
+    try {
+        const todayStart = getTodayStart();
+
+        const records = await attendanceCollection
+            .find({
+                employee_id: new ObjectId(employee_id),
+                clock_in_time: { $gte: todayStart },
+            })
+            .sort({ clock_in_time: -1 })
+            .toArray();
+
+        let totalHours = 0;
+        records.forEach((record) => {
+            const duration = calculateDuration(record.clock_in_time, record.clock_out_time);
+            totalHours += duration;
+        });
+
+        console.log("📊📊 Fetched hours worked successfully");
+        res.json({ hours: totalHours });
     } catch (err) {
         handleError(res, err);
     }

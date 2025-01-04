@@ -73,6 +73,82 @@ router.get('/employees/user', async (req, res) => {
     }
 });
 
+// Get all regular users (role = 0) and their total hours worked
+router.get('/employees/user/total', async (req, res) => {
+    try {
+        const users = await employeesCollection.aggregate([
+            { $match: { role: 0 } },
+            {
+                $lookup: {
+                    from: 'attendance',
+                    localField: '_id',
+                    foreignField: 'employee_id',
+                    as: 'attendance',
+                },
+            },
+            {
+                $addFields: {
+                    total_hours_worked: {
+                        $sum: {
+                            $subtract: [
+                                { $toSeconds: '$clock_out_time' },
+                                { $toSeconds: '$clock_in_time' },
+                            ],
+                        },
+                    },
+                },
+            },
+        ]).toArray();
+
+        console.log('✅ Regular users fetched:', users.length);
+        res.json(users);
+    } catch (err) {
+        console.error('Error fetching regular users:', err.message);
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Get all regular users (role = 0) and their total hours worked for a specific period
+router.get('/employees/user/total/period', async (req, res) => {
+    try {
+        const { startDate, endDate } = req.query;
+        const users = await employeesCollection.aggregate([
+            { $match: { role: 0 } },
+            {
+                $lookup: {
+                    from: 'attendance',
+                    localField: '_id',
+                    foreignField: 'employee_id',
+                    as: 'attendance',
+                },
+            },
+            {
+                $addFields: {
+                    total_hours_worked: {
+                        $sum: {
+                            $subtract: [
+                                { $toSeconds: '$clock_out_time' },
+                                { $toSeconds: '$clock_in_time' },
+                            ],
+                        },
+                    },
+                },
+            },
+            {
+                $match: {
+                    'attendance.clock_in_time': { $gte: startDate, $lte: endDate },
+                },
+            },
+        ]).toArray();
+
+        console.log('✅ Regular users fetched:', users.length);
+        res.json(users);
+    } catch (err) {
+        console.error('Error fetching regular users:', err.message);
+        res.status(500).json({ error: err.message });
+    }    
+});
+
 /*
 // Get all regular users (role = 0) and their total hours worked today
 router.get('/employees/user/today', (req, res) => {
