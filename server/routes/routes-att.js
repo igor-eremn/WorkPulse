@@ -1,11 +1,16 @@
 import express from 'express';
 import { ObjectId } from 'mongodb';
 import client from '../mongoClient.js';
+import moment from 'moment-timezone';
 
 const router = express.Router();
 const db = client.db('DB1');
 const attendanceCollection = db.collection('attendance');
 const employeesCollection = db.collection('employees');
+
+const getLocalTime = () => moment().tz('America/Los_Angeles').format();
+const getTodayStart = () => moment().tz('America/Los_Angeles').startOf('day').toISOString();
+
 
 // Helper function for error handling
 const handleError = (res, err) => {
@@ -23,8 +28,7 @@ router.post('/attendance/clock-in', async (req, res) => {
 
     console.log("📊📊 Received clock-in reqest for user with id: ", employee_id);
     try {
-        const todayStart = new Date();
-        todayStart.setHours(0, 0, 0, 0);
+        const todayStart = moment().tz('America/Los_Angeles').startOf('day').toDate();
 
         const existingRecord = await attendanceCollection.findOne({
             employee_id: new ObjectId(employee_id),
@@ -36,7 +40,7 @@ router.post('/attendance/clock-in', async (req, res) => {
             return res.status(400).json({ error: 'You have already clocked in today' });
         }
 
-        const clockInTime = new Date();
+        const clockInTime = getLocalTime();
         const result = await attendanceCollection.insertOne({
             employee_id: new ObjectId(employee_id),
             clock_in_time: clockInTime,
@@ -62,8 +66,7 @@ router.put('/attendance/break-in', async (req, res) => {
 
     console.log("📊📊 Received break-in reqest for user with id: ", employee_id);
     try {
-        const todayStart = new Date();
-        todayStart.setHours(0, 0, 0, 0);
+        const todayStart = getTodayStart();
 
         const record = await attendanceCollection.findOne({
             employee_id: new ObjectId(employee_id),
@@ -80,9 +83,10 @@ router.put('/attendance/break-in', async (req, res) => {
             return res.status(400).json({ error: 'Break has already started' });
         }
 
+        const breakInTime = getLocalTime();
         await attendanceCollection.updateOne(
             { _id: record._id },
-            { $set: { break_in_time: new Date() } }
+            { $set: { break_in_time: breakInTime } }
         );
 
         console.log("📊✅ User with id: ", employee_id, " started a break successfully");
@@ -102,8 +106,7 @@ router.put('/attendance/break-out', async (req, res) => {
 
     console.log("📊📊 Received break-out reqest for user with id: ", employee_id);
     try {
-        const todayStart = new Date();
-        todayStart.setHours(0, 0, 0, 0);
+        const todayStart = getTodayStart();
 
         const record = await attendanceCollection.findOne({
             employee_id: new ObjectId(employee_id),
@@ -120,9 +123,10 @@ router.put('/attendance/break-out', async (req, res) => {
             return res.status(400).json({ error: 'Break has already ended' });
         }
 
+        const breakOutTime = getLocalTime();
         await attendanceCollection.updateOne(
             { _id: record._id },
-            { $set: { break_out_time: new Date() } }
+            { $set: { break_out_time: breakOutTime } }
         );
 
         console.log("📊✅ User with id: ", employee_id, " ended the break successfully");
@@ -140,10 +144,10 @@ router.put('/attendance/clock-out', async (req, res) => {
         return res.status(400).json({ error: 'Employee ID is required' });
     }
 
-    console.log("📊📊 Received clock-out reqest for user with id: ", employee_id);
+    console.log("📊📊 Received clock-out request for user with id: ", employee_id);
+
     try {
-        const todayStart = new Date();
-        todayStart.setHours(0, 0, 0, 0);
+        const todayStart = getTodayStart();
 
         const record = await attendanceCollection.findOne({
             employee_id: new ObjectId(employee_id),
@@ -160,9 +164,10 @@ router.put('/attendance/clock-out', async (req, res) => {
             return res.status(400).json({ error: 'Already clocked out today' });
         }
 
+        const clockOutTime = getLocalTime();
         await attendanceCollection.updateOne(
             { _id: record._id },
-            { $set: { clock_out_time: new Date() } }
+            { $set: { clock_out_time: clockOutTime } }
         );
 
         console.log("📊✅ User with id: ", employee_id, " clocked out successfully");
@@ -182,6 +187,45 @@ router.get('/attendance', async (req, res) => {
 
         console.log("📊📊 Fetched attendance records successfully");
         res.json(records);
+    } catch (err) {
+        handleError(res, err);
+    }
+});
+
+// Fetch Today's Attendance for an Employee
+router.get('/attendance/today', async (req, res) => {
+    const { employee_id } = req.query;
+
+    if (!employee_id) {
+        return res.status(400).json({ error: 'Employee ID is required' });
+    }
+
+    console.log("📊📊 Received request for today's attendance for user with id: ", employee_id);
+    try {
+        const todayStart = new Date();
+        todayStart.setHours(0, 0, 0, 0);
+
+        const records = await attendanceCollection
+            .find({
+                employee_id: new ObjectId(employee_id),
+                clock_in_time: { $gte: todayStart },
+            })
+            .sort({ clock_in_time: -1 })
+            .toArray();
+
+        console.log("📊📊 Fetched today's attendance records successfully");
+        res.json(records);
+    } catch (err) {
+        handleError(res, err);
+    }
+});
+
+// Delete all attendance records
+router.delete('/attendance', async (req, res) => {
+    try {
+        const result = await attendanceCollection.deleteMany({});
+        console.log("📊📊 Deleted all attendance records successfully");
+        res.json({ message: `${result.deletedCount} attendance records deleted` });
     } catch (err) {
         handleError(res, err);
     }
