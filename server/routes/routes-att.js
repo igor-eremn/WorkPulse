@@ -16,13 +16,22 @@ const getTodayStart = () => moment().tz('America/Los_Angeles').startOf('day').to
 // 30 min - 0.50 h, 35 min - 0.58 h, 
 // 40 min - 0.67 h, 45 min - 0.75 h, 
 // 50 min - 0.83 h, 55 min - 0.92 h,
-const calculateDuration = (start, end) => {
-    if (!start || !end) {
-        return 0;
-    }
+const calculateDuration = (start, end, breakIn, breakOut) => {
+    if (!start || !end) return 0;
+
     const startDateTime = moment(start);
     const endDateTime = moment(end);
-    return parseFloat(endDateTime.diff(startDateTime, 'hours', true).toFixed(3));
+    let totalDuration = endDateTime.diff(startDateTime, 'hours', true);
+
+    if (breakIn && breakOut) {
+        const breakInTime = moment(breakIn);
+        const breakOutTime = moment(breakOut);
+        const breakDuration = breakOutTime.diff(breakInTime, 'hours', true);
+
+        totalDuration -= breakDuration;
+    }
+
+    return parseFloat(totalDuration.toFixed(2));
 };
 
 // Helper function for error handling
@@ -39,21 +48,22 @@ router.post('/attendance/clock-in', async (req, res) => {
         return res.status(400).json({ error: 'Employee ID is required' });
     }
 
-    console.log("📊📊 Received clock-in reqest for user with id: ", employee_id);
+    console.log("📊📊 Received clock-in request for user with id: ", employee_id);
     try {
-        const todayStart = moment().tz('America/Los_Angeles').startOf('day').toDate();
+        const todayStart = moment().tz('America/Los_Angeles').startOf('day').format();
+        const todayEnd = moment().tz('America/Los_Angeles').endOf('day').format();
 
         const existingRecord = await attendanceCollection.findOne({
             employee_id: new ObjectId(employee_id),
-            clock_in_time: { $gte: todayStart },
+            clock_in_time: { $gte: todayStart, $lte: todayEnd },
         });
 
         if (existingRecord) {
-            console.log("📊⚠️  User with id: ", employee_id, " has already clocked in today");
+            console.log("📊⚠️ User with id: ", employee_id, " has already clocked in today");
             return res.status(400).json({ error: 'You have already clocked in today' });
         }
 
-        const clockInTime = getLocalTime();
+        const clockInTime = moment().tz('America/Los_Angeles').format();
         const result = await attendanceCollection.insertOne({
             employee_id: new ObjectId(employee_id),
             clock_in_time: clockInTime,
@@ -62,10 +72,11 @@ router.post('/attendance/clock-in', async (req, res) => {
             clock_out_time: null,
         });
 
-        console.log("📊✅ User with id: ", employee_id, " clocked in successfully");
-        res.status(201).json({ id: result.insertedId, message: 'Clock-in successful' });
+        console.log("📊✅ User with id: ", employee_id, " clocked in successfully at ", clockInTime);
+        res.status(201).json({ id: result.insertedId, message: 'Clock-in successful', clock_in_time: clockInTime });
     } catch (err) {
-        handleError(res, err);
+        console.error("📊❌ Error during clock-in:", err.message);
+        res.status(500).json({ error: 'An error occurred during clock-in' });
     }
 });
 
@@ -259,7 +270,7 @@ router.get('/attendance/:employee_id', async (req, res) => {
     }
 });
 
-// Fetch number of hours worked for a specific employee this month
+// Fetch number of hours worked for a specific employee today
 router.get('/attendance/hours/:employee_id', async (req, res) => {
     const { employee_id } = req.params;
 
@@ -289,6 +300,43 @@ router.get('/attendance/hours/:employee_id', async (req, res) => {
         res.json({ hours: totalHours });
     } catch (err) {
         handleError(res, err);
+    }
+});
+
+// Fetch number of hours worked for a specific employee this month
+router.get('/attendance/hours/month/:employee_id', async (req, res) => {
+    const { employee_id } = req.params;
+
+    if (!employee_id) {
+        return res.status(400).json({ error: 'Employee ID is required' });
+    }
+
+    console.log("📊📊 Received request for monthly hours worked for user with id: ", employee_id);
+
+    try {
+        const monthStart = moment().tz('America/Los_Angeles').startOf('month').toISOString();
+        const monthEnd = moment().tz('America/Los_Angeles').endOf('month').toISOString();
+
+        const records = await attendanceCollection
+            .find({
+                employee_id: new ObjectId(employee_id),
+                clock_in_time: { $gte: monthStart, $lte: monthEnd },
+            })
+            .sort({ clock_in_time: 1 })
+            .toArray();
+
+        let totalHours = 0;
+
+        records.forEach((record) => {
+            const duration = calculateDuration(record.clock_in_time, record.clock_out_time, record.break_in_time, record.break_out_time);
+            totalHours += duration;
+        });
+
+        console.log("📊📊 Fetched monthly hours worked successfully");
+        res.json({ hours: totalHours.toFixed(2) });
+    } catch (err) {
+        console.error("📊❌ Error fetching monthly hours:", err.message);
+        res.status(500).json({ error: 'An error occurred while fetching monthly hours' });
     }
 });
 

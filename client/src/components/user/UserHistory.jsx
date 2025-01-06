@@ -5,7 +5,7 @@ import HoursStat from './HoursStat';
 const apiUrl = import.meta.env.VITE_API_URL;
 
 function UserHistory({ id }) {
-  const [historyData, setHistoryData] = useState([]); // Always initialize as an array
+  const [historyData, setHistoryData] = useState([]);
   const [hours, setHours] = useState(0);
 
   useEffect(() => {
@@ -32,10 +32,10 @@ function UserHistory({ id }) {
                   hour: '2-digit',
                   minute: '2-digit',
                   second: '2-digit',
+                  hourCycle: 'h23',
                 })
               : 'Not yet';
           
-          // Extract date from the datetime string
           const extractDate = (dateString) =>
             dateString
               ? new Date(dateString).toLocaleDateString('en-US', {
@@ -47,7 +47,7 @@ function UserHistory({ id }) {
           
           const formattedData = data.map((record) => ({
             ...record,
-            date: extractDate(record.clock_in_time), // Extract and add the date
+            date: extractDate(record.clock_in_time),
             clock_in_time: formatTime(record.clock_in_time),
             break_in_time: formatTime(record.break_in_time),
             break_out_time: formatTime(record.break_out_time),
@@ -56,7 +56,7 @@ function UserHistory({ id }) {
 
           setHistoryData(formattedData);
         } else {
-          setHistoryData([]); // Ensure it's an empty array if no data exists
+          setHistoryData([]);
         }
       } catch (err) {
         console.error('Error:', err.message);
@@ -66,7 +66,7 @@ function UserHistory({ id }) {
 
     const fetchHours = async () => {
       try {
-        const response = await fetch(`${apiUrl}/attendance/hours/${id}`, {
+        const response = await fetch(`${apiUrl}/attendance/hours/month/${id}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -79,7 +79,7 @@ function UserHistory({ id }) {
         }
 
         const data = await response.json();
-        setHours(data.hours_worked);
+        setHours(data.hours);
       } catch (err) {
         console.error('Error:', err.message);
       }

@@ -38,9 +38,9 @@ function UserView({ userId }) {
           <UserDashboard scrollToSection={scrollToSection} />
           <div className="admin-user-content">
             <UserControlPanel id={userId} />
-            {/*<div ref={historyRef}>
+            <div ref={historyRef}>
               <UserHistory id={userId} />
-            </div>*/}
+            </div>
           </div>
         </DeviceChecker>
       </div>
