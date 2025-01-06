@@ -136,11 +136,14 @@ function UserControlPanel({ id }) {
 
   const getTodaySession = async () => {
     try {
-      const response = await fetch(`${apiUrl}/attendance/today?employee_id=${id}`, {
-        method: 'GET',
+      const response = await fetch(`${apiUrl}/attendance/today`, {
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
+        body: JSON.stringify({
+          employee_id: id,
+        }),
       });
   
       if (!response.ok) {
@@ -149,10 +152,11 @@ function UserControlPanel({ id }) {
       }
   
       const data = await response.json();
+      console.log('Today session:', data);
   
       if (data[0]) {
         const formatTime = (dateString) =>
-          dateString ? new Date(dateString).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }) : 'Not yet';
+          dateString ? new Date(dateString).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hourCycle: 'h23' }) : 'Not yet';
   
         setSessionData({
           ...data[0],
@@ -168,6 +172,7 @@ function UserControlPanel({ id }) {
       console.error('Error:', err.message);
     }
   };
+
   const today = new Date().toLocaleDateString('en-US', { 
     month: 'short', 
     day: 'numeric', 

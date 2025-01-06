@@ -23,11 +23,11 @@ function Home( { setUser } ) {
         const response = await fetch(`${apiUrl}/employees/login`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
+            'Content-Type': 'application/json',
             },
             body: JSON.stringify({ 
-                name: username,
-                password: password,
+            name: username,
+            password: password,
             }),
         });
 
